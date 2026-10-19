@@ -79,3 +79,7 @@ agent 应走四阶段：`docs/requirement.md` → `ui/database/api.md` → 生�
 - 知识库与 IDE `src/llm/skills/` 同源（2026-08 快照）。**两边要同步维护**：改约定先改 skill（agent 侧用），再同步回 IDE 目录，或反过来
 - IDE 冻结后，本 skill 就是 GewuMind 的"AI 开发面"；IDE 仅保留为非技术用户的可选 GUI
 - `validateDocs`/`autoFixDoc` 已整体移植为 `scripts/docs-verify.mjs`（阶段 1/2 的退出门，用法见 `references/pipeline.md` §docs 校验门）。移植时顺手修了 IDE 的 3 处误报：api §1 路径树标准表头被误判、`database.md` 修订记录表被 5 列护栏误伤、`\Z` 无效转义导致节末区段提取失效（详见脚本头注释）——这三处 IDE 侧的 `docsValidator.ts` 尚未回修
+
+## License
+
+[MIT](LICENSE) © gewuMind contributors
