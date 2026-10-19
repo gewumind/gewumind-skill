@@ -30,6 +30,10 @@ const source = content.slice(i + SEP.length)
 
 Java 侧：`content.indexOf(SEPARATOR)`，判断 `sep > -1` 再切分。
 
+> **后端自己也可能写错（1.0.0 实测）**：`bundle_apply` 落盘时生成的是 `\n================================\r\n`（分隔符前只有 LF），重新加载会被当成「没有分隔符」。发布后要二进制校验 `}\r\n====\r\n`；不对就重写该文件（或调 `POST /api/ai/magic-api/repair`）。
+>
+> 另一个实测问题：`bundle_apply` 可能把文件写到 `<project>/file:./data/magic-api/...`（多一层字面量 `file:`）。发布后检查并移动到 `<project>/data/magic-api/...`，否则接口 404。
+
 ### 元数据（JSON 头）
 
 **关键字段**（其它字段由 magic-api 控制台维护）：

@@ -31,6 +31,8 @@ menu 数据存 `sys_menu` 表，前端通过 `/system/menu/current/menus` 接口
 
 ### sys_menu 字段（后端实际 schema 17 列）
 
+> **先查实际 schema**：1.0.0 实测 `sys_menu` 只有 16 列，**没有 `component_id`**（下表里的该字段不存在）。生成菜单 SQL 前先 `SHOW COLUMNS FROM sys_menu`，以实际列为准；`component` / `remarks` 同样不存在。
+
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `id` | varchar(36) | 主键 UUID（工具用 `UUID()` MySQL 函数生成） |

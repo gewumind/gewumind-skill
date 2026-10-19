@@ -93,6 +93,9 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 12. **先问用户走哪条开发路径**（导入 IDEA / 下 release 在线开发 / 用 skill）。只做业务功能时应推荐 **release + 在线开发**，不要让用户去装 IDEA 拉源码
 13. **报表是 Vue SFC + `<MagicReport>`，不是 JSON 描述符**；组件用 `postJson` 调用，所以报表接口必须用 `body` 取参。详见 `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`
 14. **前后台联调推荐「监听调试」**（本项目独有，magic-api 没有）：设断点后点工具栏「监听调试」，再从前端触发接口，可用真实入参逐行调试
+15. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
+16. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
+17. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
 
 ## 知识库索引（knowledge/）
 

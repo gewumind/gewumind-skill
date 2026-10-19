@@ -11,7 +11,7 @@
 ## 认证
 
 - REST：`X-AI-Key: <keyId>:<secret>` 请求头（keyId:secret 都取自后端配置的 AI Key；演示环境常见 `poctrusted:poctrusted`）
-- MCP：当前 **无鉴权**（后端拦截器只覆盖 `/ai/**`、`/magic/**`、`/api/**`、`/system/security/**`，`/mcp/**` 不在内）。MCP 工具里有 `sql_execute`（裸 SQL）——**务必只在内网/可信网络暴露 MCP 端口**，公网部署前必须给 `/mcp/**` 加鉴权
+- MCP：**版本不一致**——老版本 `/mcp` 无鉴权；新构建（1.0.0 实测）会返回 **401**，需要同样带 `X-AI-Key` 头（或改用 REST）。接入前先 `curl -i {base}/mcp` 探测：401 就补 Key；无鉴权时也要注意 `sql_execute`（裸 SQL）的风险，公网部署前必须给 `/mcp/**` 加鉴权
 
 ## MCP Server（推荐接入方式）
 
@@ -139,6 +139,51 @@ ddl → menu → sfc → insert → dict
 | `POST /api/ai/reset` | 重置（慎用） |
 
 > 路径前缀同样受"路径说明"影响：`/api/ai` 不通时换 `/ai`。
+
+## 实测坑（2026-10 · gewumind-boot 1.0.0，务必对照）
+
+以下问题在真实克隆 + `demo` 库上实测出现，写产物/发布前先规避：
+
+### 1. `.ms` 落盘路径多出 `file:`（后端 bug）
+`bundle_apply` 返回的 `appliedMs` 可能是：
+
+```
+<project>/file:./data/magic-api/api/设备管理/列表.ms
+```
+
+即多出一层字面量 `file:` 目录。**发布后必须检查**：若存在 `<project>/file:./data/...`，把整个分组目录移到 `<project>/data/magic-api/api/`，再重启（或调 `POST /api/ai/magic-api/repair`）。否则接口一直 404。
+
+### 2. `.ms` 分隔符必须 CRLF 包围（后端自己会写错）
+标准格式：
+
+```
+<meta JSON>\r\n================================\r\n<script>
+```
+
+1.0.0 的 `bundle_apply` 实测写出的是 `\n================================\r\n`（分隔符前只有 LF）。重新加载时 `indexOf(SEPARATOR)` 失败，整个文件被当源码，表现为脚本为 `null`、接口报 `literal cannot be used alone`。
+**发布后用二进制校验 `}\r\n====\r\n`；不对就重写该文件。**
+
+### 3. magic-script 不支持 `??`
+`var x = body.x ?? 1`、`body.where ?? {}` 都会解析报错（`Expected a variable, field, map...`）。一律改成显式判空：
+
+```js
+var x = body.x;
+if (x == null) { x = 1; }
+```
+
+（示例库里可能还留着 `??` 写法，不要照抄。）
+
+### 4. 新接口默认 403
+脚本带 `options: [{name:"permission", value:"device:list"}]` 时，admin 未分配该权限 → `{"code":403,"message":"禁止访问"}`。
+演示/联调可先**去掉 permission**（`options: []`）；正式项目应把权限码写进菜单/角色并分配。
+
+### 5. 应用 API 前缀、登录头、编辑器地址
+- 业务接口实际走 **`/api/...`**（`magic-api.prefix: "/"` + 前端 baseURL `/api`），不是 `/device/list`。
+- 前端登录后的请求头是 **`token: <uuid>`**，不是 `magic-token`、也不是 `Authorization`。
+- 在线编程编辑器地址是 **`/#/lowcode/magic-editor`**；本构建 `/magic/web` 是 404。
+
+### 6. `sys_menu` 实际 schema 可能没有 `component_id`
+1.0.0 的库中 `sys_menu` 只有 16 列，**没有 `component_id`**（与 `05-menu-register.md` 的字段表不一致）。写菜单 SQL 前先 `SHOW COLUMNS FROM sys_menu`，以实际列为准；`component` / `remarks` 同样不存在。
 
 ## 发布工作流（agent 版）
 

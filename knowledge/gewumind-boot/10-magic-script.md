@@ -208,6 +208,15 @@ value instanceof String  // true/false
 DateFormat.LONG
 ```
 
+**⚠️ 不支持 `??`（null 合并）** —— `var x = body.x ?? 1`、`body.where ?? {}` 会在解析阶段报错（`Expected a variable, field, map, array...`）。必须显式判空：
+
+```javascript
+var x = body.x;
+if (x == null) { x = 1; }
+```
+
+`?.`（安全导航）和三元 `?:` 可用；示例库里若出现 `??`，那是过期写法，不要照抄。
+
 ## 6. 函数定义
 
 ```javascript
