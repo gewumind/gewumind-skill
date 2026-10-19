@@ -1,85 +1,195 @@
 # gewumind-skill
 
-把 GewuMind IDE（Tauri 桌面端）里的 AI 开发能力，打包成**任何 agent 都能用**的 skill：四阶段管线（需求 → 设计文档 → 代码生成 → 一键发布）+ 完整知识库 + 后端 MCP 工具接入说明。
+> 把 GewuMind Boot 的后端能力，变成任何 AI Agent 都能用的开发技能。
+> An agent-agnostic skill that turns requirements into a running low-code backend.
 
-```
-gewumind-skill/
-├── SKILL.md                  # skill 入口（agent 加载这个）
-├── references/
-│   ├── pipeline.md           # 四阶段管线（IDE 工具 → agent 动作映射）
-│   ├── conventions.md        # 硬约定速查：表/SFC/菜单/字典/API + 强制模板
-│   ├── sfc-compile.md        # .vue → sys_dynamic_component SQL 编译规则
-│   └── publish-protocol.md   # bundle apply 协议 + MCP 接入 + REST 运维端点
-├── scripts/
-│   └── sfc-compile.mjs       # SFC 编译脚本（node，依赖已在 magic-boot 根 node_modules）
-└── knowledge/                # 知识库（83 篇，来自 IDE 的 skills 目录）
-    ├── gewumind-boot/        # 平台约定（26 篇）：表规范/mb-* 组件/SFC/菜单/CRUD/发布…
-    ├── api/ database/ function/ task/   # magic-api 语言与内置能力
-    ├── workflow/ report/     # 工作流 / 报表
-    └── server-plugin/ subscriber-plugin/ repair/
-```
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Agents](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Cursor%20%7C%20opencode-111)](#安装)
 
-## 它替代了 IDE 的什么
+`gewumind-skill` 不是一个模型，也不是一个 IDE。它是一套**给 Agent 用的工程规范 + 知识库 + 发布协议**。
 
-| GewuMind IDE（Tauri） | 本 skill + MCP |
+装上它，你的 Claude Code / Cursor / opencode 就能按四阶段——**需求 → 设计 → 生成 → 发布**——把一个业务需求变成可运行的低代码后端应用。
+
+它解决的不是"AI 会不会写代码"，而是"AI 写出来的东西**能不能跑、敢不敢上线**"。
+
+> Codex 能写代码，但写完还要人来接。这个 skill 把目录约定、文档门禁、发布备份、回滚和验证固化给 Agent，让交付可重复。
+
+---
+
+## 它能做什么
+
+- **四阶段交付**：需求文档 → UI / 数据库 / API 设计 → 代码生成 → 一键发布
+- **不是黑盒**：生成的 SQL、magic-script、Vue 组件都落在你的项目里，可读、可改、可审阅
+- **有门禁**：文档校验、固定目录与表规范、权限码约定、发布前备份、失败可回滚
+- **有知识库**：平台约定 + magic-api 语言文档，Agent 按需查阅，不靠模型瞎猜
+- **任意 Agent**：Claude Code、Cursor、opencode，或任何支持 MCP / REST 的客户端
+
+## 前置条件
+
+| 依赖 | 要求 |
 |---|---|
-| 桌面应用 + 聊天 UI | 宿主 agent（Claude Code / Cursor / 任意 MCP 客户端）自带 |
-| 多 provider key 管理 | 宿主 agent 自带模型 |
-| CodeMirror 编辑器 + Git 面板 | agent 原生读写文件 + git |
-| RAG 本地 embedding | agent 直接读 `docs/` + `src/`（项目规模 grep 足够） |
-| `writeDoc`/`generateDdl`/`lintVue` 等 20+ 内置工具 | 直接写文件 + 按 `references/` 规则自检 |
-| `validateDocs`/`autoFixDoc`（docs 校验门） | `scripts/docs-verify.mjs`（1107 行校验逻辑的 node 版，`--fix` 程序化自动修复） |
-| 发布按钮 | MCP `bundle_apply`（后端自带 MCP Server） |
-| SFC 编译（`@vue/compiler-sfc`） | `scripts/sfc-compile.mjs`（同一套编译逻辑的 node 版） |
+| GewuMind Boot 后端 | 运行中，默认 `http://localhost:9089` |
+| Node.js | 18+（用于 `sfc-compile` / `docs-verify` 脚本） |
+| AI Key | 后端启动日志会打印，或在后台「AI Key」页面创建 |
+| Agent | Claude Code / Cursor / opencode / 任意 MCP 客户端 |
 
-## 安装
+## 快速开始
 
-### Claude Code
-
-方式一（个人级，所有项目可用）：
+### 1. 启动后端
 
 ```bash
-# 软链到 Claude skills 目录（或整体复制）
-ln -s /data/projects/magic-boot/gewumind-skill ~/.claude/skills/gewumind-boot
+git clone https://github.com/gewumind/gewumind-boot.git
+cd gewumind-boot
+
+# 建库并导入基线（MySQL 8）
+mysql -uroot -p -e "CREATE DATABASE \`gewumind-boot\` DEFAULT CHARACTER SET utf8mb4"
+mysql -uroot -p gewumind-boot < db/init/01-baseline.sql
+
+export SPRING_DATASOURCE_PASSWORD='你的数据库密码'
+bash scripts/start.sh
 ```
 
-方式二（项目级 `.claude/skills/`）：把本目录拷进项目的 `.claude/skills/gewumind-boot/`。
+也可以直接下载 [Release 发行包](https://github.com/gewumind/gewumind-boot/releases)，解压后 `bash start.sh`（Windows 用 `start.bat`）。
 
-然后配置 MCP（后端运行中，默认 `http://localhost:9089`）：
+启动日志里会打印 `X-AI-Key`，后面接 MCP / REST 要用。
+
+### 2. 安装 skill
+
+```bash
+git clone https://github.com/gewumind/gewumind-skill.git
+cd gewumind-skill
+```
+
+**Claude Code**（个人级，所有项目可用）：
+
+```bash
+ln -s "$PWD" ~/.claude/skills/gewumind-boot
+```
+
+**opencode**：
+
+```bash
+ln -s "$PWD" ~/.agents/skills/gewumind-boot
+```
+
+**Cursor / 其他 Agent**：把 `SKILL.md` 贴进项目 rules（如 `.cursor/rules/`），Agent 会按需读取 `references/` 和 `knowledge/`。
+
+### 3. 接入 MCP
+
+后端自带 MCP Server：`http://localhost:9089/mcp`。部分构建需要带 `X-AI-Key`（401 时补上）。
+
+**Claude Code**：
 
 ```bash
 claude mcp add --transport sse gewumind-boot http://localhost:9089/mcp
 ```
 
-### Cursor / 其他 MCP 客户端
+**opencode**（`~/.config/opencode/opencode.jsonc`）：
 
-见 `references/publish-protocol.md` §MCP（stdio 客户端用 `npx mcp-remote` 桥接）。
-把 `SKILL.md` 内容贴进项目 rules（`.cursor/rules/`）作为知识入口，agent 会按需读 `references/` 和 `knowledge/`。
+```jsonc
+{
+  "mcp": {
+    "gewumind-boot": {
+      "type": "remote",
+      "url": "http://localhost:9089/mcp",
+      "headers": { "X-AI-Key": "<keyId>:<secret>" }
+    }
+  }
+}
+```
 
-### 任何 agent（无 MCP）
+**Cursor / 只支持 stdio 的客户端**：
 
-只用 REST：`POST {base}/api/ai/bundle/apply` + `X-AI-Key`。完整契约见 `references/publish-protocol.md`。
+```json
+{
+  "mcpServers": {
+    "gewumind-boot": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:9089/mcp", "--header", "X-AI-Key:<keyId>:<secret>"]
+    }
+  }
+}
+```
 
-## 使用
+> 不接 MCP 也能用：直接调用 REST `POST /api/ai/bundle/apply`，请求头带 `X-AI-Key`。
 
-对 agent 说（示例）：
+### 4. 对 Agent 说
 
-> 用 gewumind-boot 做一个设备管理模块：设备登记、心跳监控、固件版本，发布到 localhost:9089
+```text
+用 gewumind-boot 做一个设备管理模块：
+设备登记、心跳监控、固件版本，发布到 localhost:9089。
+```
 
-agent 应走四阶段：`docs/requirement.md` → `ui/database/api.md` → 生成 `src/sql/**` + `src/magic-api/**` + `src/pages/*.vue` → `bundle_apply` 发布。每阶段结束等确认。
+Agent 会按四阶段执行，并在每阶段结束等你确认。
 
-## 依赖与运行要求
+## 四阶段管线
 
-- 运行中的 GewuMind Boot 后端（`docker compose up -d`，端口 9089）
-- Node 18+（跑 `scripts/sfc-compile.mjs`；依赖 `@vue/compiler-sfc` + `@babel/parser` 已在 magic-boot 根 `package.json`）
-- `scripts/sfc-compile.mjs` 从 magic-boot 仓库根目录运行（模块解析依赖根 node_modules）
+| 阶段 | 产物 | 门禁 |
+|---|---|---|
+| 1. 需求 | `docs/requirement.md` | 组织 / 角色 / 范围确认 |
+| 2. 设计 | `docs/ui.md`、`database.md`、`api.md` | `node scripts/docs-verify.mjs <project>` 通过 |
+| 3. 生成 | `src/sql/**`、`src/magic-api/**`、`src/pages/*.vue` | 表 / 字段 / 权限码 / 确定性 ID 约定 |
+| 4. 发布 | 通过 `bundle_apply` 写入后端 | 发布前备份 + 幂等 + 错误定位 + 可回滚 |
 
-## 与 IDE 的关系
+发布后可以直接验证：接口返回真实数据，页面即时生效；需要回退时用后端快照 / rollback。
 
-- 知识库与 IDE `src/llm/skills/` 同源（2026-08 快照）。**两边要同步维护**：改约定先改 skill（agent 侧用），再同步回 IDE 目录，或反过来
-- IDE 冻结后，本 skill 就是 GewuMind 的"AI 开发面"；IDE 仅保留为非技术用户的可选 GUI
-- `validateDocs`/`autoFixDoc` 已整体移植为 `scripts/docs-verify.mjs`（阶段 1/2 的退出门，用法见 `references/pipeline.md` §docs 校验门）。移植时顺手修了 IDE 的 3 处误报：api §1 路径树标准表头被误判、`database.md` 修订记录表被 5 列护栏误伤、`\Z` 无效转义导致节末区段提取失效（详见脚本头注释）——这三处 IDE 侧的 `docsValidator.ts` 尚未回修
+## MCP 工具
 
-## License
+| 工具 | 作用 |
+|---|---|
+| `status_check` | 健康检查：版本、名称、状态 |
+| `bundle_apply` | **发布入口**：SQL + magic-script 一次提交 |
+| `sql_execute` | 只读诊断（`SHOW` / `SELECT`），不要用于变更 |
+| `data_query` | 自然语言查询业务数据 |
+| `file_receive` | 把生成文件暂存到后端（调试用） |
+| `docs_push` | 推送项目文档到后端 RAG 上下文 |
+
+## 项目结构
+
+```text
+gewumind-skill/
+├── SKILL.md                  # Agent 入口：先读这个
+├── references/
+│   ├── pipeline.md           # 四阶段管线与退出条件
+│   ├── conventions.md        # 表 / SFC / 菜单 / 字典 / API 硬约定
+│   ├── sfc-compile.md        # .vue → 动态组件 SQL 编译规则
+│   └── publish-protocol.md   # bundle_apply / MCP / REST 协议
+├── scripts/
+│   ├── docs-verify.mjs       # 文档校验门（--fix 自动修复）
+│   └── sfc-compile.mjs       # SFC 编译
+└── knowledge/                # 知识库（按平台 / 语言 / 能力分类）
+```
+
+`scripts/` 里的 Node 脚本需要：
+
+```bash
+npm i @vue/compiler-sfc @babel/parser
+```
+
+## 知识库
+
+`knowledge/` 按主题组织，Agent 会按需读取，不需要你一次性喂给模型：
+
+- `gewumind-boot/`：平台约定——表规范、`mb-*` 组件、SFC、菜单、CRUD、发布、报表、字典、图标、系统配置
+- `api/`、`database/`、`function/`、`task/`：magic-api 语法与内置能力
+- `workflow/`、`report/`：工作流与报表
+- `server-plugin/`、`subscriber-plugin/`：服务端 / 订阅插件
+- `repair/`：已有功能的修改流程
+
+## 常见问题
+
+**MCP 返回 401**
+补上 `X-AI-Key` 头；key 在后端启动日志或后台「AI Key」页面。
+
+**接口 403（禁止访问）**
+脚本里的 `permission` 权限码还没有分配给当前角色。联调时可先去掉接口级 `permission`，正式环境再写进菜单 / 角色。
+
+**发布后接口 404**
+确认后端的 magic-api 工作目录里有对应的 `.ms` 文件；`.ms` 的分隔符必须是 `\r\n` + 32 个 `=` + `\r\n`。
+
+**改了代码没生效**
+在线编程里的脚本是热更新的；如果改的是后端 Java 或前端静态资源，需要重启 / 重新打包。
+
+## 许可
 
 [MIT](LICENSE) © gewuMind contributors
