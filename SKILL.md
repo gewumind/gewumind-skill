@@ -99,6 +99,9 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 15. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
 16. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
 17. **页面用 `.ms` 组件页面（1.0.0）**：目录 `src/magic-api/component/{中文组}/`，`group.json` 的 `path` + 组件 `path` = 菜单 `url`；菜单**不要写 `component_id`**。生成用 `scripts/ms-component.mjs`；发布是「复制到后端 `data/magic-api/component/` + 重启」。详见 `references/component-page.md`
+18. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
+19. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
+20. **小程序账号用微信绑定，不要密码**：`t_cgt_user` 首登 `status=2`，绑手机号后置 1；功能权限单独建表（`cgt_user_id`+`perm_code`），每个小程序接口开头校验「账号存在 + status=1 + 有 perm_code」
 18. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
 
 ## 知识库索引（knowledge/）
@@ -114,3 +117,5 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | `report/` (6 篇) | 报表组件 props 与生成工作流 | 做报表时 |
 | `server-plugin/` / `subscriber-plugin/` | 服务端插件 / 订阅插件开发与推送 | 做插件时 |
 | `repair/` | 补充/修改已有功能的修复流程 | 用户说"改一下/加个字段"时 |
+
+> 1.0.0 实战踩坑（驼峰字段 / body 判空 / groupId 悬空 / 平台基线别删 / 按钮权限 / 主键生成 / 字典类型）见 **`knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**。
