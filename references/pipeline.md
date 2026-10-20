@@ -33,9 +33,9 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
 
 1. **业务建模完整性**
    - 系统的所有使用者（§3）：admin / operator / 终端用户 / 财务 / 审计……
-   - 组织层级（§2）：使用者归属谁？层级是什么？设备/资产归哪个场站/公司/车队？
+   - 组织层级（§2）：使用者归属谁？层级是什么？设备/资产归哪个组织节点？
    - **必须先和用户商讨组织层级、角色和归属**，再写用例
-   - 组织数据用系统自带 `sys_office` 表（`pid` 实现层级、`type` 字典区分类型）。**不要在 §3 加"公司管理/场站管理"模块**——数据进 `sys_office`，由"组织管理"统一维护
+   - 组织数据用系统自带 `sys_office` 表（`pid` 实现层级、`type` 字典区分类型）。**不要在 §3 加"公司管理/部门管理"模块**——数据进 `sys_office`，由"组织管理"统一维护
 2. **用例覆盖度**：每个角色在每个组织层级能做什么；用例的"前置/步骤/后置/字段清单/按钮/权限/查询条件"必须齐；用例之间不能打架（矛盾要主动指出）
 3. **不越界**：requirement.md 不写表名（t_xxx）/ API 路径——那些在阶段 2
 
@@ -81,7 +81,7 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
 - 关联字段用 `xxx_id varchar(36)` + 注释说明关联表，**不写外键**
 - 枚举字段用 `dict: xxx` 注释关联；文档末尾必须有「数据字典清单」节，**唯一格式为 3 列表格** `| 字典编码 | 中文名 | 枚举值 |`（如 `| device_status | 设备状态 | online=在线, offline=离线 |`），**禁止 bullet list**
 - 表间必须有 `---` 分隔符
-- 组织机构用 `sys_office`（已含 id/name/code/pid/sort/type），**不要新建** t_company/t_station/t_dept/t_team；类型字典 `sys_dict.type='org_type'`
+- 组织机构用 `sys_office`（已含 id/name/code/pid/sort/type），**不要新建** t_company/t_dept/t_team；类型字典 `sys_dict.type='org_type'`
 
 ### ui.md 硬约束
 

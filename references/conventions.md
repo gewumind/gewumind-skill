@@ -14,7 +14,7 @@
 | 引擎 | `InnoDB` / `utf8mb4` / `ROW_FORMAT=DYNAMIC` |
 | 关联 | `xxx_id varchar(36)` + 注释说明关联表，**不写外键** |
 | 枚举字段 | 注释 `dict: <字典键>`；字典键必须在 database.md 字典清单有定义 |
-| 组织 | 用 `sys_office`（pid 层级 + type 字典），**禁止**新建 t_company/t_dept/t_station/t_team |
+| 组织 | 用 `sys_office`（pid 层级 + type 字典），**禁止**新建 t_company/t_dept/t_team |
 
 ## API 规范
 
