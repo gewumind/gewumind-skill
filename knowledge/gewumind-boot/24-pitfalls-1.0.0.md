@@ -1,6 +1,6 @@
 # 24 — 1.0.0 实测坑与对齐要点（agent 必读）
 
-> 本文来自一次真实交付：用 1.0.0 后端从零落地「党建活动管理平台」（11 个 PC 页面 + 小程序 API），
+> 本文来自一次真实交付：用 1.0.0 后端从零落地一个业务系统（PC 页面 + 小程序 API），
 > 中途踩到的**必然复现**的坑。凡是重跑同类项目，先按本文自检，能省掉大半调试时间。
 
 ## 1. `sql-column-case: camel` —— 结果集键是驼峰，组件必须驼峰
@@ -12,7 +12,7 @@ magic-api:
   sql-column-case: camel
 ```
 
-`select card_no from t_member` 返回的键是 **`cardNo`**，不是 `card_no`。
+`select card_no from t_业务表` 返回的键是 **`cardNo`**，不是 `card_no`。
 
 **后果**：页面有数据但**每一列都是空的**（组件按 `card_no` 取不到值）。
 
@@ -151,14 +151,14 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES ('1', 'djbtn-base-sav
 ## 11. `db.table().insert()` 不会生成 varchar 主键
 
 ```js
-id = db.table("t_member").primary("id").insert({ ... })   // ✗ Field 'id' doesn't have a default value
+id = db.table("t_业务表").primary("id").insert({ ... })   // ✗ Field 'id' doesn't have a default value
 ```
 
 先取 UUID 再显式传入：
 
 ```js
 id = db.selectValue("select replace(uuid(), '-', '')")
-db.table("t_member").primary("id").insert({ id: id, ... })
+db.table("t_业务表").primary("id").insert({ id: id, ... })
 ```
 
 （更新走 `saveOrUpdate` + `data.id = exist.id` 时不受影响。）
@@ -172,12 +172,12 @@ db.table("t_member").primary("id").insert({ id: id, ... })
 
 ## 13. 小程序账号：用微信绑定，不要密码字段
 
-`t_cgt_user` 走「微信 openid 绑定党员」，没有注册密码这一说：
+业务账号表走「微信 openid 绑定」，没有注册密码这一说：
 
 - 不要做「重置密码」按钮 / `password` 列
-- 首登 `status=2`（未激活），绑定手机号后置 `1`
-- 功能权限单独建表（如 `t_cgt_user_perm`：`cgt_user_id` + `perm_code`），
-  每个小程序接口开头校验：账号存在 + `status=1` + 具备对应 `perm_code`
+- 首登置「未激活」，绑定手机号后置「启用」
+- 功能权限单独建关联表（账号 id + 权限码），
+  每个小程序接口开头校验：账号存在 + 已启用 + 具备对应权限码
 - 无权限时返回明确文案，别静默通过
 
 ## 14. 检查清单（发布前逐条过）
