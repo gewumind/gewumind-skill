@@ -155,7 +155,7 @@ function validateRequirement(content) {
     issues.push({ level: 'error', msg: '缺少「§1 业务背景」', fix: '加 ## 1. 业务背景，描述 why + 痛点' })
   }
   if (!/##\s*2\.\s*组织机构|##\s*2\s*组织机构|组织(机构|层级|架构|树)/i.test(content)) {
-    issues.push({ level: 'error', msg: '缺少「§2 组织机构」', fix: '加 ## 2. 组织机构：定义组织层级（集团/公司/场站/车队/线路/班组）及其归属关系' })
+    issues.push({ level: 'error', msg: '缺少「§2 组织机构」', fix: '加 ## 2. 组织机构：定义组织层级（集团/公司/部门/班组）及其归属关系' })
   }
   // §3 用户角色
   if (!/##\s*3\.\s*用户角色|##\s*3\s+用户角色|用户角色|角色|admin/i.test(content)) {
@@ -369,7 +369,7 @@ function validateDatabase(content) {
   }
   // ⚠️ 反模式：组织机构数据用 sys_office + sys_dict('org_type')，不要新建以下表
   // 3 类匹配：
-  //   A. 明确已知的组织子类型（t_company / t_station / ...）
+  //   A. 明确已知的组织子类型（t_company / t_dept / ...）
   //   B. 任何 t_*org* 形式（t_org / t_organization / t_org_unit）
   //   C. 业务前缀 + organizations（terminal_organizations / project_organizations ...）
   // 匹配时排除 sys_office（系统表本身）和 magic_*/sys_* 前缀
