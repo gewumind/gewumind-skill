@@ -92,19 +92,19 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 7. 表名 `t_xxx`；每张表显式列出全部公共字段（id/is_del/create_by/create_date/update_by/update_date），不允许「同上」
 8. 菜单 SQL 文件名全中文；SFC 的 id/pid 用 name 派生的确定性 UUID（见 `references/sfc-compile.md`），禁止硬编码随机 UUID
 9. 发布失败 → 读 errors → 修文件 → 重新发布。后端有发布前自动备份，必要时走 rollback 端点
-10. **读写任何 `.ms` 文件，分隔符必须带首尾 `\r\n`**（`"\r\n" + 32个"=" + "\r\n"`）。漏掉会让后端 `indexOf(SEPARATOR)` 返回 -1，把整个文件当源码，在线编辑里表现为"内容是空的"。详见 `knowledge/server-plugin/01-structure.md`
-11. **改前端后必须重建 + 同步 + 重打包**；且**实例运行期间禁止原地 `mvn package` 覆盖 fat jar**（会让运行中的实例抛 `NoClassDefFoundError` 并返回 404）。顺序恒为 stop → package → start。详见 `knowledge/gewumind-boot/21-frontend-build-deploy.md`
-12. **先问用户走哪条开发路径**（导入 IDEA / 下 release 在线开发 / 用 skill）。只做业务功能时应推荐 **release + 在线开发**，不要让用户去装 IDEA 拉源码
-13. **报表是 Vue SFC + `<MagicReport>`，不是 JSON 描述符**；组件用 `postJson` 调用，所以报表接口必须用 `body` 取参。详见 `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`
-14. **前后台联调推荐「监听调试」**（本项目独有，magic-api 没有）：设断点后点工具栏「监听调试」，再从前端触发接口，可用真实入参逐行调试
-15. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
-16. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
-17. **页面用 `.ms` 组件页面（1.0.0）**：目录 `src/magic-api/component/{中文组}/`，`group.json` 的 `path` + 组件 `path` = 菜单 `url`；菜单**不要写 `component_id`**。生成用 `scripts/ms-component.mjs`；发布是「复制到后端 `data/magic-api/component/` + 重启」。详见 `references/component-page.md`
-18. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
-19. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
-20. **小程序账号用微信绑定，不要密码**：`t_cgt_user` 首登 `status=2`，绑手机号后置 1；功能权限单独建表（`cgt_user_id`+`perm_code`），每个小程序接口开头校验「账号存在 + status=1 + 有 perm_code」
-19. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
-18. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
+2. **读写任何 `.ms` 文件，分隔符必须带首尾 `\r\n`**（`"\r\n" + 32个"=" + "\r\n"`）。漏掉会让后端 `indexOf(SEPARATOR)` 返回 -1，把整个文件当源码，在线编辑里表现为"内容是空的"。详见 `knowledge/server-plugin/01-structure.md`
+3. **改前端后必须重建 + 同步 + 重打包**；且**实例运行期间禁止原地 `mvn package` 覆盖 fat jar**（会让运行中的实例抛 `NoClassDefFoundError` 并返回 404）。顺序恒为 stop → package → start。详见 `knowledge/gewumind-boot/21-frontend-build-deploy.md`
+4. **先问用户走哪条开发路径**（导入 IDEA / 下 release 在线开发 / 用 skill）。只做业务功能时应推荐 **release + 在线开发**，不要让用户去装 IDEA 拉源码
+5. **报表是 Vue SFC + `<MagicReport>`，不是 JSON 描述符**；组件用 `postJson` 调用，所以报表接口必须用 `body` 取参。详见 `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`
+6. **前后台联调推荐「监听调试」**（本项目独有，magic-api 没有）：设断点后点工具栏「监听调试」，再从前端触发接口，可用真实入参逐行调试
+7. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
+8. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
+9. **页面用 `.ms` 组件页面（1.0.0）**：目录 `src/magic-api/component/{中文组}/`，`group.json` 的 `path` + 组件 `path` = 菜单 `url`；菜单**不要写 `component_id`**。生成用 `scripts/ms-component.mjs`；发布是「复制到后端 `data/magic-api/component/` + 重启」。详见 `references/component-page.md`
+10. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
+11. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
+12. **小程序账号用微信绑定，不要密码**：`t_cgt_user` 首登 `status=2`，绑手机号后置 1；功能权限单独建表（`cgt_user_id`+`perm_code`），每个小程序接口开头校验「账号存在 + status=1 + 有 perm_code」
+13. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
+14. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
 
 ## 知识库索引（knowledge/）
 
