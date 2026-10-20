@@ -76,6 +76,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | magic-api 语法（lambda/import/类型） | `knowledge/api/` 目录 |
 | 菜单 SQL | `knowledge/gewumind-boot/05-menu-register.md` |
 | 模块组织（可选，不是必绑） | `knowledge/gewumind-boot/23-module-organization.md` |
+| 改首页 / dashboard | `knowledge/gewumind-boot/24-home-dashboard.md` |
 | 字典 SQL | `knowledge/gewumind-boot/13-data-dictionary.md` |
 | 发布 / bundle apply | `references/publish-protocol.md` |
 | 工作流 / 报表 / 插件 | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
@@ -108,7 +109,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 
 | 目录 | 内容 | 何时查 |
 |---|---|---|
-| `gewumind-boot/` (29 篇) | **本项目平台约定**：表规范、mb-* 组件、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署** | 生成任何产物前 |
+| `gewumind-boot/` (30 篇) | **本项目平台约定**：表规范、mb-* 组件、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署** | 生成任何产物前 |
 | `api/` (14 篇) | magic-api 脚本语言：语法/请求/响应/模块/数据库/插件 | 写 .ms 时 |
 | `database/` (11 篇) | db 模块、SQL 占位符、事务、redis/mongo/kafka/mqtt 访问 | 写 .ms 数据访问时 |
 | `function/` (6 篇) | magic-api 内置函数：聚合/集合/类型转换 | .ms 里用函数时 |

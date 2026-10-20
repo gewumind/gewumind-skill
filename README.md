@@ -174,7 +174,7 @@ npm i @vue/compiler-sfc @babel/parser
 
 `knowledge/` 按主题组织，Agent 会按需读取，不需要你一次性喂给模型：
 
-- `gewumind-boot/`：平台约定——表规范、`mb-*` 组件、SFC、菜单、CRUD、发布、报表、字典、图标、系统配置
+- `gewumind-boot/`：平台约定——表规范、`mb-*` 组件、组件页面、菜单、CRUD、发布、报表、字典、图标、系统配置、**首页 dashboard**
 - `api/`、`database/`、`function/`、`task/`：magic-api 语法与内置能力
 - `workflow/`、`report/`：工作流与报表
 - `server-plugin/`、`subscriber-plugin/`：服务端 / 订阅插件
