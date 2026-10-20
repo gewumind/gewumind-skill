@@ -193,7 +193,7 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
 - API 调用用 `$common.post` / `$common.handleDelete`，路径**不加** `/api` 前缀
 - 每个按钮独立权限码，禁止复用
 - `.vue` → `.ms` 的编译/发布见 `references/component-page.md`
-- 权威模板：后端仓库 `frontend/src/views/system/dict/dict-list.vue` 等真实代码，照抄其结构
+- 权威模板：平台自带的系统页面（如 dict-list），照抄其结构
 - 生成完逐页对照 ui.md §2 对应页面核对（字段/列/按钮/查询条件缺一不可）
 
 ### 完成后自检（替代 IDE 的 fixMagicApi + lintVue）

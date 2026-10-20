@@ -11,7 +11,7 @@ var count = redis.publish('demo:news', '{"title":"新闻1","content":"..."}')
 // 返回：收到消息的订阅者数
 
 // 2. KV 操作
-redis.set('demo:name', 'Magic-Boot')
+redis.set('demo:name', 'gewumind-boot')
 var name = redis.get('demo:name')
 
 redis.setex('demo:code', '123456', 60)  // 60秒过期

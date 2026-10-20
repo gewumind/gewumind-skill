@@ -135,7 +135,7 @@ curl -X POST http://localhost:9089/api/data/report-op/profit \
 
 ## 进阶：发布流程
 
-1. dev 在 ai-design-frontend 里写"魔法报表"插件，让用户在前端填"报表名 + params + columns"
+1. dev 在 平台前端 IDE 里写"魔法报表"插件，让用户在前端填"报表名 + params + columns"
 2. 插件生成 `.ms` 和 `.vue` 写到 `<project>/src/magic-api/...`
 3. 用户点"发布"→ `applyBundle` 同步到后端 `data/magic-api/api/...`
 4. 同时 INSERT `sys_menu` + `sys_role_menu`

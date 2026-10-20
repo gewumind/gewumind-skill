@@ -1,6 +1,6 @@
 # 硬约定速查（违反必然出 bug）
 
-> 从 GewuMind IDE 的角色 prompt 与 `frontend/src/views/system/**` 真实代码提取。细节展开见 `knowledge/gewumind-boot/` 对应文档。
+> 从平台自带的系统页面源码提取。细节展开见 `knowledge/gewumind-boot/` 对应文档。
 
 ## 表规范
 
@@ -36,7 +36,7 @@
 
 ## SFC（.vue 动态组件，SFC 表路线）硬规则
 
-**权威模板**：后端仓库 `frontend/src/views/system/**` 真实代码（如 user/role/menu 下的页面）。生成时**照抄其结构**。
+**权威模板**：平台自带的系统页面（user / role / menu 等）。生成时**照抄其结构**。
 
 ### 强制结构
 

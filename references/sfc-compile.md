@@ -47,7 +47,7 @@ VALUES ('<nameToUuid(name)>', '<nameToUuid(parent) 或 0>', '<name>', '<转义�
 
 ## 编译规则（compileCode）
 
-对齐 `ai-design-frontend/src/core/sfc-compiler.ts`，输入 .vue 源码，输出 `compile_js` + `compile_css`：
+输入 .vue 源码，输出 `compile_js` + `compile_css`：
 
 1. **校验**：`@vue/compiler-sfc` parse；`<script setup>` 强制（defineProps 等只能在 setup 下用）；不支持 lang 预处理器（lang="ts"/"tsx" 等）
 2. **compileScript**（inlineTemplate: true）→ `rewriteDefault(__sfc__)`
@@ -61,7 +61,7 @@ VALUES ('<nameToUuid(name)>', '<nameToUuid(parent) 或 0>', '<name>', '<转义�
 
 ## 用法（scripts/sfc-compile.mjs）
 
-依赖 `@vue/compiler-sfc` + `@babel/parser`（magic-boot 根目录 `package.json` 已声明并安装）。
+依赖 `@vue/compiler-sfc` + `@babel/parser`（项目根目录 `package.json` 声明）。
 
 ```bash
 # L1 顶级分组（已存在则跳过）

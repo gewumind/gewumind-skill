@@ -13,7 +13,7 @@
  *       打印 nameToUuid(name)，退出
  *
  * 依赖：@vue/compiler-sfc、@babel/parser（从上级目录 node_modules 解析）
- * 逻辑对齐 ai-design-frontend/src/core/sfc-compiler.ts + llm/tools/index.ts 的 nameToUuid。
+ * nameToUuid 逻辑与平台 SFC 编译器保持一致。
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'

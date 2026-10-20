@@ -32,7 +32,7 @@ return db.selectOne("SELECT * FROM sys_user WHERE id = #{id} AND is_del = 0");
 
 ### 保存（新增 + 编辑）
 
-⚠️ **必须**优先参考 `/data/projects/gewumind-boot/backend/data/magic-api/api/系统管理/用户管理/保存.ms` 这种"项目标准模板"，不要自己编。
+⚠️ **必须**优先参考 `data/magic-api/api/系统管理/用户管理/保存.ms` 这种"项目标准模板"，不要自己编。
 
 ```javascript
 // 1. 校验必填

@@ -1,6 +1,6 @@
 ## Bundle Apply（AI 发布的统一入口）
 
-所有 AI 对 Magic-Boot Core 的变更，**统一**通过 `POST /api/ai/bundle/apply` 一次提交。
+所有 AI 对 GewuMind Boot 的变更，**统一**通过 `POST /api/ai/bundle/apply` 一次提交。
 
 ### 为什么是 Bundle
 

@@ -6,26 +6,26 @@
 
 | 仓库 | 作用 | 是否 git |
 |---|---|---|
-| `magic-boot/frontend` | 前端**源码**（Vue 3 + Vite） | 否（不在版本控制里） |
+| `frontend` | 前端**源码**（Vue 3 + Vite） | 否（不在版本控制里） |
 | `gewumind-boot` | 发布工程：fat jar + 前端**产物** | 是 |
-| `magic-boot/backend` | 后端 Java 源码 + `data/magic-api` 低代码容器 | 否 |
+| `backend` | 后端 Java 源码 + `data/magic-api` 低代码容器 | 否 |
 
 `gewumind-boot` 把 `src/main/resources/static/` 提交进仓库，保证 clone 下来直接能跑；改前端后必须**重新同步产物**回去。
 
 ## 2. 标准链路
 
 ```bash
-# 1) 改前端源码（magic-boot/frontend/src/...）
-cd /data/projects/magic-boot/frontend
+# 1) 改前端源码（frontend/src/...）
+cd <frontend-repo>
 
 # 2) 构建
 VITE_APP_BASE_API='' npm run build          # 产出 dist/
 
 # 3) 全量同步到发布工程（先删后拷，避免残留旧 hash 文件）
-cd /data/projects/gewumind-boot
+cd <backend-repo>
 bash scripts/stop.sh
 rm -rf src/main/resources/static
-cp -r /data/projects/magic-boot/frontend/dist src/main/resources/static
+cp -r <frontend-repo>/dist src/main/resources/static
 
 # 4) 重新打包并启动
 mvn -q -o package -DskipTests

@@ -4,7 +4,7 @@
 
 ## 路径说明（重要）
 
-- 现有客户端（GewuMind IDE、`test/scripts/apply-bundle.mjs`）统一用 **`/api/ai/**`** 前缀
+- 现有客户端（GewuMind IDE、发布脚本）统一用 **`/api/ai/**`** 前缀
 - 当前源码里 Java 控制器映射是 **`/ai/**`**（`AiApiController @RequestMapping("/ai")`）
 - 不同构建版本前缀可能不一致。**接入前先探测**：依次 `GET {base}/ai/health`、`GET {base}/api/ai/health`，哪个通用哪个。MCP 端点是 `{base}/mcp`（无 /api 前缀问题）
 
@@ -111,7 +111,7 @@ Content-Type: application/json
 4. 其余 INSERT 已存在 → 跳过（幂等）
 5. .ms 落盘格式 = meta JSON + 换行 + 32 个 `=` 分隔线 + 脚本体；HTML 实体会自动反转义（`&lt;` → `<`）
 
-### SQL 文件收集顺序（参考 `test/scripts/apply-bundle.mjs`）
+### SQL 文件收集顺序（参考 发布脚本）
 
 `src/sql/` 下按目录依次收集，**顺序即执行顺序**：
 

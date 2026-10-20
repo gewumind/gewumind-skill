@@ -229,7 +229,7 @@ jdbcTemplate.update(
 
 如果只是想临时看效果，可以**不**注册菜单，直接在浏览器地址栏输入 `#/report-demo/<name>` 强制跳转，但 Vue Router 会因为找不到菜单而展示空白 page wrapper。
 
-**推荐**：通过 ai-design-frontend 的"魔法报表"插件生成，发布时一次性把菜单注册和 page 写好。
+**推荐**：通过 平台前端 IDE 的"魔法报表"插件生成，发布时一次性把菜单注册和 page 写好。
 
 ## 对应演示文件
 

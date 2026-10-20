@@ -31,14 +31,14 @@ src/system/
 
 ## 缺省行为
 
-- `system.name` 缺省值: `Magic-Boot 一屏通办后台`
+- `system.name` 缺省值: `GewuMind Boot 后台`
 - `system.logo` 缺省值: `""`（前端 layout 显示 `$global.title` 文字）
 - `system.login.bg` 缺省值: `""`（login.vue 用原蓝色背景）
 
 ## 前端显示
 
-- `gewumind-boot/frontend/src/views/login.vue` — 显示 logo + name + bg
-- `gewumind-boot/frontend/src/views/home.vue` — 显示 name
+- `平台登录页源码` — 显示 logo + name + bg
+- `平台首页源码` — 显示 name
 - `gewumind-boot/frontend/src/layout/index.vue` — header 显示 logo + name
 
 ## 后端 API

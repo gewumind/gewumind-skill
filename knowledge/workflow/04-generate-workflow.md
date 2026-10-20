@@ -64,7 +64,7 @@ VALUES ('<name>_v1', 'biz_<name>', 1, 'id', 'wf_instance_id', '<name>');
 
 ### 步骤 6：演示账号（如需要新角色）
 
-`WorkflowModule.initDemoUsers()` 加角色 + 用户 + 绑定，并加 `frontend/src/components/workflow/MagicWorkflow.vue` 的 `userOptions`。
+`WorkflowModule.initDemoUsers()` 加角色 + 用户 + 绑定，并加 `平台工作流组件 MagicWorkflow` 的 `userOptions`。
 
 ### 步骤 7：验证
 
