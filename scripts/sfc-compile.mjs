@@ -17,6 +17,7 @@
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import * as SFCCompiler from '@vue/compiler-sfc'
 import { parse as babelParse } from '@babel/parser'
 
@@ -187,6 +188,8 @@ if (args.length === 0) {
   process.exit(1)
 }
 const ROOT = resolve(args[0])
+const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+if (isMain) {
 const rest = args.slice(1)
 
 function writeSql(sqlPath, insertSql, { skipIfExists = false } = {}) {
@@ -256,3 +259,4 @@ const insertSql =
   `VALUES ('${id}', ${pid}, '${name}', '${esc(vueSource)}', '${esc(result.compileJs)}', '${esc(result.compileCss)}', 0, '${esc(remark)}', 0, NULL, NOW());`
 const r = writeSql(join(ROOT, 'src/sql/sfc', `${name}.sql`), insertSql)
 console.log(JSON.stringify({ name, id, parent: parent || null, pid, jsBytes: result.compileJs.length, cssBytes: result.compileCss.length, ...r }, null, 2))
+}

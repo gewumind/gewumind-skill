@@ -1,3 +1,5 @@
+> **注意**：本文是 `sys_dynamic_component`（SFC SQL）路线。1.0.0 的页面请用 `.ms` 组件页面，见 `references/component-page.md`。
+
 ## 动态 SFC 组件（SFC SQL 注册）
 
 > 📚 **本文件只讲 SFC SQL 注册** —— `sys_dynamic_component` 表的 INSERT、编译流程、层级结构、与菜单的关联。

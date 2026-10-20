@@ -170,15 +170,19 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
    - **function**：遍历 api.md §10 每行：目录=`中文组名`，`group.json.path`=`groupPath` 列，.ms name=`name` 列，.ms path=`path` 列。完整 URL = groupPath + path
    - **task**：遍历 api.md §11 每行，结构同 function + cron
    - CRUD 写法：`knowledge/gewumind-boot/06-crud-api.md`；SQL 动态条件：`knowledge/database/01-sql.md`
-4. **SFC**：每个页面写 `src/pages/{name}.vue`（name 匹配 `^[a-zA-Z0-9\-_]+$`，**必须含模块前缀**如 device-list），然后按 `references/sfc-compile.md` 编译生成 `src/sql/sfc/{name}.sql`
+4. **组件页面（.ms）**：每个页面写 `src/pages/{name}.vue`（name 匹配 `^[a-zA-Z0-9\-_]+$`，**必须含模块前缀**如 device-list），然后：
+   `node scripts/ms-component.mjs --vue src/pages/{name}.vue --group {中文组} --group-path /{英文组} --name {中文页面名} --path /{页面路径} --out src/magic-api/component`
+   产出 `src/magic-api/component/{中文组}/group.json` + `{页面名}.ms`。
+   **菜单 url = group-path + 页面 path**；1.0.0 的 `sys_menu` 没有 `component_id`，不要写。详见 `references/component-page.md`。
 5. **菜单 SQL**：`src/sql/menu/{父中文名}-{子中文名}.sql`（**文件名全中文，禁止混英文**）
    - ui.md §1 菜单树几层就生成几层（顶级 + 子级），首页 `/home` 已有不生成
    - 子菜单 pid 用派生 UUID（nameToUuid(父菜单name)），禁止硬编码随机 UUID
+   - 菜单 `url` = 组件页面完整路径（group path + 页面 path）；**不要写 `component_id`**
    - 菜单中文名必须与 ui.md 菜单树完全一致
 6. **字典 SQL**：对 database.md 字典清单**每个键**生成一条 `sys_dict` + `sys_dict_items` INSERT → `src/sql/dict/{键名}.sql`
    - 这是 DDL 里 `dict:` 引用真正生效的步骤，**必须全部生成**
 
-### SFC 生成铁律（.vue）
+### 组件页面生成铁律（.vue）
 
 完整规则与禁止清单见 `references/conventions.md` §SFC 硬规则。核心：
 
@@ -186,6 +190,7 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
 - 表单用 `<mb-modal>` + 手写 `<n-form>` + `<n-grid>` + `<n-form-item>` + `<mb-input>/<mb-select>`（**不是** `<mb-form>` 容器）
 - API 调用用 `$common.post` / `$common.handleDelete`，路径**不加** `/api` 前缀
 - 每个按钮独立权限码，禁止复用
+- `.vue` → `.ms` 的编译/发布见 `references/component-page.md`
 - 权威模板：后端仓库 `frontend/src/views/system/dict/dict-list.vue` 等真实代码，照抄其结构
 - 生成完逐页对照 ui.md §2 对应页面核对（字段/列/按钮/查询条件缺一不可）
 

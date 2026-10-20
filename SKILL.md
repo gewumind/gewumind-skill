@@ -40,8 +40,9 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 │   ├── magic-api/
 │   │   ├── api/{中文组名}/.../*.ms + group.json   # 业务 API
 │   │   ├── function/{中文组名}/...                # 公共函数
-│   │   └── task/{中文组名}/...                    # 定时任务
-│   └── pages/{name}.vue         # 动态组件源码（编译后进 sfc/*.sql）
+│   │   ├── task/{中文组名}/...                    # 定时任务
+│   │   └── component/{中文组}/.../*.ms + group.json   # 组件页面（1.0.0）
+│   └── pages/{name}.vue         # 页面源码（编译进 .ms）
 ```
 
 **4 份 docs 是真相源**。代码永远从 docs 派生，不允许 docs 里没写东西出现在产物里。
@@ -52,7 +53,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 
 1. **阶段 1 · 需求**：与用户确认组织层级和角色 → 写 `docs/requirement.md`（7 节）→ 用户确认
 2. **阶段 2 · 设计**：从 requirement 派生 `ui.md` / `database.md` / `api.md` → 交叉一致性检查 → 用户确认
-3. **阶段 3 · 生成**：DDL → 预置数据 → magic-script（api/function/task）→ SFC（.vue + 编译 SQL）→ 菜单 SQL → 字典 SQL。**先数总数，再逐项生成，生成完逐一核对**
+3. **阶段 3 · 生成**：DDL → 预置数据 → magic-script（api/function/task）→ 组件页面（.vue → .ms）→ 菜单 SQL → 字典 SQL。**先数总数，再逐项生成，生成完逐一核对**
 4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 报告
 
 **每阶段结束等用户确认再进下一阶段**。不要一口气跑完。
@@ -67,7 +68,8 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 改前端 / 重新部署 / 打包发行版 | `knowledge/gewumind-boot/21-frontend-build-deploy.md` |
 | 不知道怎么开发 / 要不要装 IDEA / 怎么联调调试 | `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`（含**监听调试**这个 magic-api 没有的自研能力） |
 | 直接读写 `.ms` 文件 | `knowledge/server-plugin/01-structure.md` §分隔符必须带首尾 `\r\n` |
-| 写 `.vue` 动态组件 | `references/conventions.md` §SFC 硬规则 + `knowledge/gewumind-boot/04b-sfc-vue-codegen.md` |
+| 写组件页面（`.ms`） | `references/component-page.md` + `knowledge/gewumind-boot/04b-sfc-vue-codegen.md` |
+| 写 `.vue`（SFC 表路线，旧版） | `references/conventions.md` §SFC 硬规则 + `knowledge/gewumind-boot/04-dynamic-sfc.md` |
 | `.vue` → SFC SQL（编译） | `references/sfc-compile.md` |
 | 建表 / 公共字段 / 命名 | `references/conventions.md` §表规范 + `knowledge/gewumind-boot/00-table-schema.md` |
 | 写 magic-script CRUD | `knowledge/gewumind-boot/06-crud-api.md` + `knowledge/database/01-sql.md` |
@@ -95,7 +97,8 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 14. **前后台联调推荐「监听调试」**（本项目独有，magic-api 没有）：设断点后点工具栏「监听调试」，再从前端触发接口，可用真实入参逐行调试
 15. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
 16. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
-17. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
+17. **页面用 `.ms` 组件页面（1.0.0）**：目录 `src/magic-api/component/{中文组}/`，`group.json` 的 `path` + 组件 `path` = 菜单 `url`；菜单**不要写 `component_id`**。生成用 `scripts/ms-component.mjs`；发布是「复制到后端 `data/magic-api/component/` + 重启」。详见 `references/component-page.md`
+18. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
 
 ## 知识库索引（knowledge/）
 

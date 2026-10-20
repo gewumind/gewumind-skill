@@ -25,7 +25,16 @@
 - 组织管理：`/sys/office/list|save|delete`（权限码 `office:*`）；字典类型：`/sys/dict/{type}/items`（`dict:*`）
 - magic-script CRUD 模板：`knowledge/gewumind-boot/06-crud-api.md`（`db.page`/`db.table`/`db.selectOne`/`db.update`，参数 `#{param}`，动态条件 `?{param, and x = #{param}}`）
 
-## SFC（.vue 动态组件）硬规则
+## 组件页面（.ms）硬规则（1.0.0）
+
+- 目录：`src/magic-api/component/{中文组}/`；每级 `group.json` 的 `path` 是英文 URL 段。
+- 组件 `.ms`：meta JSON（`type:1`、`properties.type:1`、`compileJs`/`compileCss`）+ `\r\n` + 32 个 `=` + `\r\n` + Vue SFC。
+- 菜单 `url` = group path + 组件 path；**不要写 `component_id`**（1.0.0 无此列）。
+- 生成：`node scripts/ms-component.mjs --vue ... --group ... --group-path ... --name ... --path ... --out src/magic-api/component`
+- 发布：把 `src/magic-api/component/{中文组}/` 复制到后端 `data/magic-api/component/`，重启后端。
+- 详见 `references/component-page.md`。
+
+## SFC（.vue 动态组件，SFC 表路线）硬规则
 
 **权威模板**：后端仓库 `frontend/src/views/system/**` 真实代码（如 user/role/menu 下的页面）。生成时**照抄其结构**。
 

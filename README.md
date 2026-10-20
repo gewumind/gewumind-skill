@@ -19,7 +19,7 @@
 ## 它能做什么
 
 - **四阶段交付**：需求文档 → UI / 数据库 / API 设计 → 代码生成 → 一键发布
-- **不是黑盒**：生成的 SQL、magic-script、Vue 组件都落在你的项目里，可读、可改、可审阅
+- **不是黑盒**：生成的 SQL、magic-script、`.ms` 组件页面都落在你的项目里，可读、可改、可审阅
 - **有门禁**：文档校验、固定目录与表规范、权限码约定、发布前备份、失败可回滚
 - **有知识库**：平台约定 + magic-api 语言文档，Agent 按需查阅，不靠模型瞎猜
 - **任意 Agent**：Claude Code、Cursor、opencode，或任何支持 MCP / REST 的客户端
@@ -128,10 +128,12 @@ Agent 会按四阶段执行，并在每阶段结束等你确认。
 |---|---|---|
 | 1. 需求 | `docs/requirement.md` | 组织 / 角色 / 范围确认 |
 | 2. 设计 | `docs/ui.md`、`database.md`、`api.md` | `node scripts/docs-verify.mjs <project>` 通过 |
-| 3. 生成 | `src/sql/**`、`src/magic-api/**`、`src/pages/*.vue` | 表 / 字段 / 权限码 / 确定性 ID 约定 |
+| 3. 生成 | `src/sql/**`、`src/magic-api/**`、`src/magic-api/component/**/*.ms` | 表 / 字段 / 权限码 / 确定性 ID 约定 |
 | 4. 发布 | 通过 `bundle_apply` 写入后端 | 发布前备份 + 幂等 + 错误定位 + 可回滚 |
 
 发布后可以直接验证：接口返回真实数据，页面即时生效；需要回退时用后端快照 / rollback。
+
+> **发布说明**：SQL / 菜单 / 字典走 `bundle_apply`；页面是 `.ms` 组件，需要把 `src/magic-api/component/` 复制到后端的 `data/magic-api/component/` 并重启（同机部署）。详见 `references/component-page.md`。
 
 ## MCP 工具
 
@@ -152,11 +154,13 @@ gewumind-skill/
 ├── references/
 │   ├── pipeline.md           # 四阶段管线与退出条件
 │   ├── conventions.md        # 表 / SFC / 菜单 / 字典 / API 硬约定
-│   ├── sfc-compile.md        # .vue → 动态组件 SQL 编译规则
+│   ├── component-page.md     # .ms 组件页面规范（1.0.0 页面机制）
+│   ├── sfc-compile.md        # .vue → 动态组件 SQL 编译规则（旧版）
 │   └── publish-protocol.md   # bundle_apply / MCP / REST 协议
 ├── scripts/
 │   ├── docs-verify.mjs       # 文档校验门（--fix 自动修复）
-│   └── sfc-compile.mjs       # SFC 编译
+│   ├── ms-component.mjs      # .vue → .ms 组件页面
+│   └── sfc-compile.mjs       # SFC 编译（旧版 SQL 路线）
 └── knowledge/                # 知识库（按平台 / 语言 / 能力分类）
 ```
 
@@ -184,8 +188,8 @@ npm i @vue/compiler-sfc @babel/parser
 **接口 403（禁止访问）**
 脚本里的 `permission` 权限码还没有分配给当前角色。联调时可先去掉接口级 `permission`，正式环境再写进菜单 / 角色。
 
-**发布后接口 404**
-确认后端的 magic-api 工作目录里有对应的 `.ms` 文件；`.ms` 的分隔符必须是 `\r\n` + 32 个 `=` + `\r\n`。
+**发布后页面 404 / 空白**
+确认 `.ms` 组件已复制到后端 `data/magic-api/component/` 并重启；菜单 `url` 必须等于 `group path + 组件 path`；`.ms` 分隔符必须是 `\r\n` + 32 个 `=` + `\r\n`，且 `compileJs` 不为空。
 
 **改了代码没生效**
 在线编程里的脚本是热更新的；如果改的是后端 Java 或前端静态资源，需要重启 / 重新打包。
