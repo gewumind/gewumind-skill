@@ -65,6 +65,8 @@ VALUES
 - 需要「父菜单 + 子页面」时：父菜单 `url` 留空，子菜单 `pid` 指向父 id。
 - **不要写 `component_id`**（1.0.0 不存在该列）。
 
+- **icon 必填**：新建菜单不能留空；从 `knowledge/gewumind-boot/16-icon-library.md` 选。
+
 ## 发布
 
 `bundle_apply` 只接受 `kind: api/function/task`，**不能直接发布组件**。同机部署时：

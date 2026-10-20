@@ -173,6 +173,8 @@ function handleUpdate(row) {
 
 ## 菜单 SQL 规则
 
+- 新建菜单必须有 `icon`（非空）；从 `knowledge/gewumind-boot/16-icon-library.md` 选
+
 - 文件：`src/sql/menu/{父中文名}-{子中文名}.sql`（**全中文文件名**，禁止混英文）
 - 菜单树几层就生成几层 INSERT（顶级 pid 按 ui.md；子菜单 pid 用 `nameToUuid(父菜单name)` 或包装子查询 `(SELECT id FROM (SELECT id FROM sys_menu WHERE name='{parent}' AND is_del=0 LIMIT 1) AS _t)`，**禁止硬编码随机 UUID**）
 - 菜单中文名与 ui.md 菜单树**完全一致**（不缩写）

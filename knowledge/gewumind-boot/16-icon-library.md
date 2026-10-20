@@ -2,6 +2,8 @@
 
 gewumind-boot 集成两套图标：naive-ui `vicons`（PascalCase）+ gewumind-boot 自定义 svg（kebab-case）。**写菜单/按钮/tab 时必先调 `listIcons`**，不能凭空想图标名。
 
+> **新建菜单的 `icon` 是必填项**：空 icon 视为不合格。生成菜单 SQL 后逐条校验，空的话从下面的可用图标里补。
+
 ---
 
 ### 调用工具

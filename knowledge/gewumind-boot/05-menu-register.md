@@ -27,7 +27,7 @@ menu 数据存 `sys_menu` 表，前端通过 `/system/menu/current/menus` 接口
 | `url` | ✅ | 路由路径，如 `/device/registration` |
 | `parentName` | ❌ | 父菜单中文名（留空 = 顶级 `pid='0'`） |
 | `componentName` | ❌ | 关联 SFC 英文名（子菜单必填） |
-| `icon` | ❌ | svgIcons 的 kebab-case（先调 `listIcons()` 查白名单）。不传则从 url 首段派生（`/device/list` → `device` → icon=`monitor`）。零硬编码。 |
+| `icon` | ✅ | svgIcons 的 kebab-case 或 xicons 的 PascalCase（先调 `listIcons()` 查白名单）。**新建菜单必填，不能为空**。 |
 | `permission` | ❌ | 权限码（英文），如 `device:view`。顶级菜单自动清空。不传则从 url 首段派生（`/device/list` → `device:view`）。 |
 | `sort` / `descRibe` / `keepAlive` / `isShow` / `openMode` | ❌ | 可选 |
 
@@ -41,7 +41,7 @@ menu 数据存 `sys_menu` 表，前端通过 `/system/menu/current/menus` 接口
 |---|---|---|
 | `id` | varchar(36) | 主键 UUID（工具用 `UUID()` MySQL 函数生成） |
 | `pid` | varchar(36) | 父菜单 ID，`'0'`=根。子菜单：`(SELECT id FROM (SELECT id FROM sys_menu WHERE name='${parentName}' AND is_del=0 LIMIT 1) AS _t)` 包装子查询绕 MySQL 1093 |
-| `icon` | text | 图标名（**必须是 svgIcons 白名单的 kebab-case**，如 `configure` / `monitor` / `oper-log`） |
+| `icon` | text | **必填**。图标名（svgIcons 的 kebab-case，如 `configure` / `monitor` / `oper-log`；或 xicons 的 PascalCase，如 `SettingsSharp`）。**空 icon 不合格** |
 | `desc_ribe` | text | 描述（默认空） |
 | `name` | varchar(255) | 菜单显示名（中文，如「用户管理」） |
 | `url` | varchar(255) | 路由路径，如 `/system/user/user-list` |

@@ -103,6 +103,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 18. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
 19. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
 20. **小程序账号用微信绑定，不要密码**：`t_cgt_user` 首登 `status=2`，绑手机号后置 1；功能权限单独建表（`cgt_user_id`+`perm_code`），每个小程序接口开头校验「账号存在 + status=1 + 有 perm_code」
+19. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
 18. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
 
 ## 知识库索引（knowledge/）
