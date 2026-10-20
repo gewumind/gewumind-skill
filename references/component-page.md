@@ -88,6 +88,10 @@ curl -X POST -H "token: <session-token>" \
 
 远程后端没有组件保存接口：要么后端侧复制 + 重启，要么给 `bundle_apply` 增加 `kind: component`。
 
+## 可选：归入模块标签
+
+默认**不需要**。只有希望业务菜单单独占一个顶部标签时，才创建 `sys_module` 并绑定 `sys_module_menu`；详见 `knowledge/gewumind-boot/23-module-organization.md`。
+
 ## 与 SFC SQL 的区别
 
 | | `.ms` 组件（推荐） | `sys_dynamic_component` |

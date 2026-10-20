@@ -1,6 +1,6 @@
 ---
 name: gewumind-boot
-description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开发完整业务应用。四阶段管线：需求文档 → ui/database/api 设计文档 → 生成 DDL SQL / magic-script / Vue SFC / 菜单与字典 SQL → 一键发布到后端。当用户要"做业务页面 / 增删改查模块 / 加菜单 / 加字典 / 写 magic-api 脚本 / 发布到 gewumind-boot"时使用。
+description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开发完整业务应用。四阶段管线：需求文档 → ui/database/api 设计文档 → 生成 DDL SQL / magic-script / .ms 组件页面 / 菜单与字典 SQL → 一键发布到后端。当用户要"做业务页面 / 增删改查模块 / 加菜单 / 加字典 / 写 magic-api 脚本 / 发布到 gewumind-boot"时使用。
 ---
 
 # GewuMind Boot 开发 Skill
@@ -75,6 +75,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 写 magic-script CRUD | `knowledge/gewumind-boot/06-crud-api.md` + `knowledge/database/01-sql.md` |
 | magic-api 语法（lambda/import/类型） | `knowledge/api/` 目录 |
 | 菜单 SQL | `knowledge/gewumind-boot/05-menu-register.md` |
+| 模块组织（可选，不是必绑） | `knowledge/gewumind-boot/23-module-organization.md` |
 | 字典 SQL | `knowledge/gewumind-boot/13-data-dictionary.md` |
 | 发布 / bundle apply | `references/publish-protocol.md` |
 | 工作流 / 报表 / 插件 | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
@@ -104,7 +105,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 
 | 目录 | 内容 | 何时查 |
 |---|---|---|
-| `gewumind-boot/` (28 篇) | **本项目平台约定**：表规范、mb-* 组件、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署** | 生成任何产物前 |
+| `gewumind-boot/` (29 篇) | **本项目平台约定**：表规范、mb-* 组件、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署** | 生成任何产物前 |
 | `api/` (14 篇) | magic-api 脚本语言：语法/请求/响应/模块/数据库/插件 | 写 .ms 时 |
 | `database/` (11 篇) | db 模块、SQL 占位符、事务、redis/mongo/kafka/mqtt 访问 | 写 .ms 数据访问时 |
 | `function/` (6 篇) | magic-api 内置函数：聚合/集合/类型转换 | .ms 里用函数时 |

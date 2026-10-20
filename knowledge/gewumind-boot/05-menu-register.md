@@ -1,3 +1,5 @@
+> **模块是可选组织**：菜单不绑定模块也能用；只有需要独立模块标签时才创建 `sys_module` + `sys_module_menu`，见 `23-module-organization.md`。
+>
 > **1.0.0 页面机制**：菜单通过 `url` 关联 `.ms` 组件页面，`sys_menu` 没有 `component_id`。下面的 `component_id` 写法是旧版 / SFC 表路线；生成页面请用 `references/component-page.md`。
 
 ## 菜单注册

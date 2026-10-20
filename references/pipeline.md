@@ -178,6 +178,7 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
    - ui.md §1 菜单树几层就生成几层（顶级 + 子级），首页 `/home` 已有不生成
    - 子菜单 pid 用派生 UUID（nameToUuid(父菜单name)），禁止硬编码随机 UUID
    - 菜单 `url` = 组件页面完整路径（group path + 页面 path）；**不要写 `component_id`**
+   - **模块绑定是可选的**，不要默认生成；需要独立顶部标签时才见 `knowledge/gewumind-boot/23-module-organization.md`
    - 菜单中文名必须与 ui.md 菜单树完全一致
 6. **字典 SQL**：对 database.md 字典清单**每个键**生成一条 `sys_dict` + `sys_dict_items` INSERT → `src/sql/dict/{键名}.sql`
    - 这是 DDL 里 `dict:` 引用真正生效的步骤，**必须全部生成**
