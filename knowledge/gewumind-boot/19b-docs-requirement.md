@@ -22,18 +22,18 @@
 ## 2. 组织机构（组织层级树）
 > **角色和权限都依附于组织**。必须先定义组织层级，再写角色和功能。
 > - 参考回复约定：`manageOrg`（管理组织）、`orgId`
-> - **⚠️ 数据库/API 设计约束**：使用系统自带的 `sys_office` 表（已含 `id/name/code/pid/sort/...`），**不要新建** `t_company / t_station / t_fleet / t_dept / t_team` 等
+> - **⚠️ 数据库/API 设计约束**：使用系统自带的 `sys_office` 表（已含 `id/name/code/pid/sort/...`），**不要新建** `t_company / t_dept / t_team` 等
 >   - 层级关系 → 用 `sys_office.pid` 自引用实现
 >   - 组织类型 → 用 `sys_office.type` 字段区分（值来自 `sys_dict.type = 'org_type'`）
->   - 字典项示例：`company=公司, station=场站, fleet=车队, line=线路, team=班组`
+>   - 字典项示例（以平台实际字典为准）：`company=公司, dept=部门, team=班组`
 >   - 详见 skill `gewumind-boot/09-common-tables.md` §sys_office
 
 | 层级 | 实体 | sys_office.type | 是否必须 |
 |------|------|-----------------|----------|
 | L1 | 集团/公司 | `company` | 是 |
-| L2 | 场站/分公司 | `station` / `branch` | 视业务 |
-| L3 | 车队/线路 | `fleet` / `line` | 视业务 |
-| L4 | 班组 | `team` | 视业务 |
+| L2 | 部门/分公司 | `dept` / `branch` | 视业务 |
+| L3 | 分组/科室 | `group` | 视业务 |
+| L4 | 班组/小组 | `team` | 视业务 |
 
 组织间关系：`归属` / `管辖` / `属于`
 

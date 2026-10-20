@@ -86,7 +86,7 @@
 |----------|--------|--------|
 | device_status | 设备状态 | 0=待激活, 1=在线, 2=离线, 3=故障 |
 | device_model | 设备型号 | A100, B200, C300 |
-| org_type | 组织类型 | company=公司, station=场站, fleet=车队, line=线路, team=班组 |
+| org_type | 组织类型 | company=公司, dept=部门, team=班组 |
 ```
 
 **规则**：
