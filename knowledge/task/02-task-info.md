@@ -11,7 +11,7 @@
 | `groupId` | String | 分组 ID |
 | `script` | String | 任务脚本内容（magic-script） |
 | `cron` | String | **cron 表达式**（必填） |
-| `enabled` | boolean | **是否启用**（默认 true） |
+| `enabled` | boolean | **是否启用（默认 `false`！必须显式写 `"enabled": true` 才会被调度）** |
 | `description` | String | 任务描述 |
 | `createDate` | Date | 创建时间 |
 | `updateDate` | Date | 更新时间 |

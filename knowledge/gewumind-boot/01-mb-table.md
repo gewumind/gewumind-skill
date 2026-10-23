@@ -151,3 +151,42 @@ const cols = [
   ]}
 ]
 ```
+
+## ⚠️ 实测补充（行为契约）
+
+| 事项 | 实际行为 |
+|---|---|
+| 列 `render` 返回值 | 可返回字符串或 **VNode**（需 `import { h } from 'vue'`）。返回 VNode 才能绑定点击事件（做「打开弹窗」等交互） |
+| 导出优先级 | `exportRender(row) > render(row) > row[field]`。`render` 返回 VNode 时若未提供 `exportRender`，导出会拿到不可序列化的对象 |
+| `nowrap` | 全局默认可能为 `true`，长文本列（备注/附件）需显式 `:nowrap="false"` 并配 `white-space: normal` |
+| `showNo` | **默认 true**，报表类页面要显式 `showNo: false` 去掉序号列 |
+| `limit` | 默认 10，报表/明细类建议显式设 100 |
+| 图片类列 | `type: 'image'` 在表格里直接铺缩略图。**数据量大时建议改成「有 N 项」+ 点击弹窗预览**，既美观也避免表格被撑高 |
+| 确认弹窗 | 平台删除统一用 `$common.handleDelete({ url, id, done })`，内部是 `n-dialog`（naive-ui），**不是 layui layer**，自动化脚本里别找 `.layui-layer-btn0` |
+
+### 「有 N 张」+ 弹窗预览的推荐写法
+
+```vue
+// 1) 列定义：只显示数量，点击打开弹窗
+{
+  field: 'fileUrls', label: '附件', width: 110,
+  render: (row) => {
+    const urls = String(row.fileUrls || '').split(',').filter(Boolean)
+    if (!urls.length) return '—'
+    return h('a', { class: 'link', onClick: (e) => { e.stopPropagation(); openPreview(urls) } },
+              `有 ${urls.length} 项`)
+  },
+  exportRender: (row) => String(row.fileUrls || '')   // 导出原始地址，而不是「有 N 项」
+}
+```
+
+```vue
+<!-- 2) 弹窗：大图 + 缩略图列表 -->
+<mb-modal ref="previewDialog" :title="previewTitle" width="900px" :show-footer="false">
+  <a v-if="previewUrl" :href="previewUrl" target="_blank"><img :src="previewUrl" class="preview-img" /></a>
+  <img v-for="(u,i) in previewUrls" :key="i" :src="u" class="preview-thumb"
+       :class="{active:u===previewUrl}" @click="previewUrl = u" />
+</mb-modal>
+```
+
+> 文件失效（磁盘丢失）时用 `@error` 换成占位图，避免出现裂图图标。

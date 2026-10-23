@@ -163,3 +163,50 @@ const listOptions = reactive({
 > - ❌ 错误：`@confirm-click` → ✅ `@confirm`
 > - ❌ 错误：`<mb-modal><template #content>...</template></mb-modal>` → ✅ `<mb-modal>直接子内容</mb-modal>`（mb-modal 只有 default slot）
 > - ❌ 错误：表单字段透传 `componentProps` → ✅ 用 **`props`**
+
+---
+
+## ⚠️ 实测补充（行为契约）
+
+### 1. `n-form` 的 model **不能整体替换引用**
+
+```js
+// ❌ 会导致校验读到旧对象：字段显示正确，但 validate 报「请选择xxx」
+temp.value = { userId: row.userId, roleIds: [...] }
+
+// ✅ 原地修改（平台自带 $common.objAssign 只覆盖同名 key）
+$common.objAssign(temp.value, { userId: row.userId, roleIds: [...] })
+```
+
+现象很好认：**弹窗里字段都有值，点确定却提示必填校验失败**。
+根因是 `n-form-item` 在挂载时保存了 model 引用，换引用后校验仍读旧对象。
+打开弹窗后调 `dataForm.value.restoreValidation()` 可清掉残留的校验态。
+
+### 2. `mb-select` 多选的 v-model 是**逗号拼接字符串**，不是数组
+
+```js
+// multiple + join(默认 true) → 用户选完后 v-model 变成 "id1,id2"
+temp.value.roleIds            // 'a1b2...,c3d4...'
+```
+
+因此：
+
+- 回显用**字符串**：`$common.objAssign(temp.value, { roleIds: row.roleIds })`；
+- 保存前归一化，避免把字符串直接丢给后端：
+
+```js
+const ids = Array.isArray(v) ? v : String(v || '').split(',').filter(Boolean)
+```
+
+### 3. 表单字段的 key 与列表列字段的命名要一致
+
+列表走 `sql-column-case: camel`，行数据键是**驼峰**（`userName` / `roleIds`）；
+而提交给后端 `.ms` 的参数名往往是**下划线**（`user_name` / `role_ids`）。
+在 `handleUpdate` 里做一次显式映射（驼峰 → 下划线），否则编辑保存时这些字段会丢。
+
+### 4. 弹窗按钮
+
+`mb-modal` 的 `showFooter` **默认 false**，即默认**没有确定/取消按钮**。
+自定义操作（下载模板、开始导入等）写在内容区即可；有确定按钮时需显式
+`:show-footer="true"` 或传 `buttons`，并用 `@confirm` 接收
+`{ loading, hideLoading, hide }`。

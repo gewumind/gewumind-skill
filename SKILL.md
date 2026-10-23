@@ -80,6 +80,9 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 字典 SQL | `knowledge/gewumind-boot/13-data-dictionary.md` |
 | 发布 / bundle apply | `references/publish-protocol.md` |
 | 工作流 / 报表 / 插件 | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
+| 写定时任务（task .ms） | `knowledge/task/05-pitfalls.md`（**enabled 默认 false、log 必须 import、验证手法**） |
+| 组件数据契约踩坑 | `knowledge/gewumind-boot/01-mb-table.md` §实测补充 + `02-mb-form.md` §实测补充（多选是逗号串、model 不能换引用） |
+| 打包发行版 / 数据库基线 | `knowledge/gewumind-boot/26-delivery-and-baseline.md`（dist 打包、两层基线、还原验证） |
 
 ## 铁律（违反必然出 bug）
 
@@ -104,16 +107,19 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 19. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
 20. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
 21. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
+22. **task 的 `enabled` 默认是 `false`**（不是 true）：meta 不显式写 `"enabled": true` 时，任务会注册但**永不执行且无任何日志**。另：`log` 是模块必须 `import log`；`/task/execute` 在嵌入部署下 404，验证请用临时 cron `*/20 * * * * ?` + 重启。详见 `knowledge/task/05-pitfalls.md`
+23. **组件数据契约**：`mb-select` 多选 v-model 是**逗号拼接字符串**（不是数组）；`n-form` 的 model **不能整体替换引用**（要用 `$common.objAssign` 原地改），否则字段有值却过不了必填校验。详见 `knowledge/gewumind-boot/02-mb-form.md` §实测补充
+24. **发行包 ≠ 可直接部署**：`db/init/01-baseline.sql` 只有平台表，业务项目须另出 `02-<项目>-baseline.sql`；打包前必须先停实例（fat jar 运行中不可覆盖）。详见 `knowledge/gewumind-boot/26-delivery-and-baseline.md`
 
 ## 知识库索引（knowledge/）
 
 | 目录 | 内容 | 何时查 |
 |---|---|---|
-| `gewumind-boot/` (30 篇) | **本项目平台约定**：表规范、mb-* 组件、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署** | 生成任何产物前 |
+| `gewumind-boot/` (32 篇) | **本项目平台约定**：表规范、mb-* 组件（含实测契约）、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署**、**发行打包与数据库基线** | 生成任何产物前 |
 | `api/` (14 篇) | magic-api 脚本语言：语法/请求/响应/模块/数据库/插件 | 写 .ms 时 |
 | `database/` (11 篇) | db 模块、SQL 占位符、事务、redis/mongo/kafka/mqtt 访问 | 写 .ms 数据访问时 |
 | `function/` (6 篇) | magic-api 内置函数：聚合/集合/类型转换 | .ms 里用函数时 |
-| `task/` (5 篇) | 定时任务插件配置与注册 | 生成 task .ms 时 |
+| `task/` (6 篇) | 定时任务插件配置与注册、**实战坑（enabled 默认 false / log / 验证手法）** | 生成 task .ms 时 |
 | `workflow/` (5 篇) | 工作流定义文件、入口 API、包装页面 | 做审批流时 |
 | `report/` (6 篇) | 报表组件 props 与生成工作流 | 做报表时 |
 | `server-plugin/` / `subscriber-plugin/` | 服务端插件 / 订阅插件开发与推送 | 做插件时 |

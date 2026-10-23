@@ -13,7 +13,7 @@
 | `requestBody` / `responseBody` | ✓ | ❌ | ❌ |
 | `parameters[]` | ✓ | ✓ | ❌（无参数） |
 | `cron` | ❌ | ❌ | **✓（必填）** |
-| `enabled` | ❌ | ❌ | **✓（默认 true）** |
+| `enabled` | ❌ | ❌ | **✓（默认 `false`，必须显式为 `true`）** |
 | `description` | ❌ | ✓ | ✓ |
 | `path` | URL path | 函数调用名 | 任务标识（任意字符串） |
 
@@ -34,7 +34,7 @@
   "groupId": "...",
   "script": "...",                          // magic-script
   "cron": "0 0 2 * * ?",                    // 必填，cron 表达式
-  "enabled": true,                           // 默认 true（false = 暂停调度）
+  "enabled": true,                           // ⚠️ 默认 false！必须显式写 true，否则任务注册了但永不执行
   "description": "每天凌晨2点清理30天前的 sys_oper_log",
   "createTime": 1700000000000,
   "updateTime": null
@@ -159,7 +159,7 @@ AI 工具目前**只支持新建和复刻**，暂停/启用/删除需要用户�
 
 **关键参数（task 专属）**：
 - `cron`：cron 表达式（必填）
-- `enabled`：默认 true，传 `false` 暂停调度
+- `enabled`：**默认 false**，必须显式为 `true`；传 `false` 暂停调度
 - `path`：任务标识（任意字符串，不会被调用）
 - `description`：给人看的说明
 
@@ -167,12 +167,41 @@ AI 工具目前**只支持新建和复刻**，暂停/启用/删除需要用户�
 
 ---
 
-### 与 task 相关的 magic-api 进阶配置
+### 与 task 相关的配置项
 
-| 配置 | 说明 |
-|---|---|
-| `magic-api.task.cron-pool-size` | 调度线程池大小（默认 10） |
-| `magic-api.task.default-enabled` | 启动时是否默认启用所有 task |
-| `magic-api.task.allow-concurrent-run` | 是否允许同一 task 并发（默认 false，第二次触发会跳过） |
+| 配置 | 默认 | 说明 |
+|---|---|---|
+| `magic-api.task.enable` | `true` | 是否启用定时任务；为 `false` 时任务实体仍会加载，但**不会进入调度** |
+| `magic-api.task.log` | `false` | 是否打印「开始执行 / 执行完毕」日志 |
+| `magic-api.task.pool.size` | CPU 核数 | 调度线程池大小 |
+| `magic-api.task.thread-name-prefix` | `magic-task-` | 线程名前缀，便于在日志中确认任务确实触发过 |
+| `magic-api.task.shutdown.await-termination` | `false` | 关闭时是否等待任务执行完毕 |
 
-AI 生成的 task 默认 `enabled=true`，发布后立即进入调度。**第一次部署前先在 `application-dev.yml` 里加个 `magic-api.task.default-enabled: false`**，跑通了再开启。
+> `enabled` 是**任务自身的 meta 字段**，不是全局配置项，没有「全局默认启用」开关——
+> 每个任务的 `.ms` 都必须显式写 `"enabled": true`。
+
+---
+
+## 常见坑（1.0.0 实测）
+
+### 坑 1：`log` 是模块，不是内置变量 —— 必须 `import log`
+
+定时任务脚本里直接写 `log.info(...)` 会抛 `MagicScriptException: 对象为空`
+（普通 api 脚本同理）。正确写法：
+
+```javascript
+import log          // ← 必须 import
+log.info('清理完成，处理 ' + n + ' 条')
+```
+
+也可用 SLF4J：`import org.slf4j.LoggerFactory` + `LoggerFactory.getLogger('xxx')`，
+但 **`import log` 是平台惯例，优先用它**。
+
+### 坑 2：`/task/execute` 手动执行接口在嵌入部署下不可用
+
+插件里确实有 `@PostMapping("/task/execute")`，但它是通过 magic-api 插件的
+`controllerRegister()` 注册到 magic-api servlet 映射上的。作为**库嵌入**的
+GewuMind Boot（`scanBasePackages` 只含 `com.gewumind.*`）中该路由 **404**。
+
+**验证任务的可行做法**：临时把 cron 改成 `*/20 * * * * ?`，重启后端，每 20 秒
+触发一次；验证完改回正式 cron 再重启。详见 `knowledge/task/05-pitfalls.md`。
