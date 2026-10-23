@@ -163,6 +163,7 @@ gewumind-skill/
 │   └── publish-protocol.md   # bundle_apply / MCP / REST 协议
 ├── scripts/
 │   ├── docs-verify.mjs       # 文档校验门（--fix 自动修复）
+│   ├── sql-check.mjs         # SQL 参数化检查（防注入）
 │   ├── ms-component.mjs      # .vue → .ms 组件页面
 │   └── sfc-compile.mjs       # SFC 编译（旧版 SQL 路线）
 └── knowledge/                # 知识库（按平台 / 语言 / 能力分类）
