@@ -51,6 +51,8 @@ bash scripts/start.sh
 
 也可以直接下载 [Release 发行包](https://github.com/gewumind/gewumind-boot/releases)，解压后 `bash start.sh`（Windows 用 `start.bat`）。
 
+> Gitee 用户可改用 `git clone https://gitee.com/gewumind/gewumind-boot.git`（内容与 GitHub 同步）。
+
 启动日志里会打印 `X-AI-Key`，后面接 MCP / REST 要用。
 
 ### 2. 安装 skill
@@ -59,6 +61,8 @@ bash scripts/start.sh
 git clone https://github.com/gewumind/gewumind-skill.git
 cd gewumind-skill
 ```
+
+> Gitee：`git clone https://gitee.com/gewumind/gewumind-skill.git`（与 GitHub 同步）。
 
 **Claude Code**（个人级，所有项目可用）：
 
