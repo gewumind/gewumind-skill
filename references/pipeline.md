@@ -209,15 +209,16 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
 
 ## 阶段 4 · 发布
 
-见 `references/publish-protocol.md`。**发布前：`node scripts/sql-check.mjs <project>` 必须 exit 0。**
+见 `references/publish-protocol.md`。**发布前：`node scripts/sql-check.mjs <project>` 必须 exit 0；发布后：`node scripts/verify-publish.mjs ...` 必须 exit 0。**
 
 要点：
 
-1. （可选稳妥做法）先调 REST `GET /ai/snapshot` 做发布前快照
-2. 收集产物 → `bundle_apply`（MCP 工具或 REST）
+1. （可选稳妥做法）先调 REST `GET /ai/snapshot` 了解当前 schema / 组件 / 菜单
+2. 收集产物 → `bundle_apply`（MCP 工具或 REST）；响应里的 `backupVersion` 记下来
 3. 检查响应 `errors`：非空 → 修对应文件 → 重新发布
-4. 成功后向用户报告 appliedSql/appliedMs
-5. 失败且需要回退 → REST `POST /ai/rollback`
+4. `errors` 为空 → 跑 `node scripts/verify-publish.mjs --base ... --component ... --api ... --menu-url ...`（exit 0 才算完成）
+5. 验证失败 → `scripts/rollback.sh --version <backupVersion> --ai-key ...` 回滚并复验
+6. 成功后向用户报告 appliedSql / appliedMs / verify 结果
 
 ## IDE 工具 → agent 动作映射表
 

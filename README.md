@@ -29,7 +29,7 @@
 | 依赖 | 要求 |
 |---|---|
 | GewuMind Boot 后端 | 运行中，默认 `http://localhost:9089` |
-| Node.js | 18+（用于 `sfc-compile` / `docs-verify` 脚本） |
+| Node.js | 18+（用于 `sfc-compile` / `docs-verify` / `verify-publish` 脚本） |
 | AI Key | 后端启动日志会打印，或在后台「AI Key」页面创建 |
 | Agent | Claude Code / Cursor / opencode / 任意 MCP 客户端 |
 
@@ -133,9 +133,9 @@ Agent 会按四阶段执行，并在每阶段结束等你确认。
 | 1. 需求 | `docs/requirement.md` | 组织 / 角色 / 范围确认 |
 | 2. 设计 | `docs/ui.md`、`database.md`、`api.md` | `node scripts/docs-verify.mjs <project>` 通过 |
 | 3. 生成 | `src/sql/**`、`src/magic-api/**`、`src/magic-api/component/**/*.ms` | 表 / 字段 / 权限码 / 确定性 ID 约定 |
-| 4. 发布 | 通过 `bundle_apply` 写入后端 | 发布前备份 + 幂等 + 错误定位 + 可回滚 |
+| 4. 发布 | 通过 `bundle_apply` 写入后端 | sql-check 通过 + 发布后 verify-publish + 可回滚 |
 
-发布后可以直接验证：接口返回真实数据，页面即时生效；需要回退时用后端快照 / rollback。
+发布后跑 `node scripts/verify-publish.mjs` 检查组件 / 接口 / 菜单；失败用 `scripts/rollback.sh` 回退到 `backupVersion`。
 
 > **发布说明**：SQL / 菜单 / 字典走 `bundle_apply`；页面是 `.ms` 组件，需要把 `src/magic-api/component/` 复制到后端的 `data/magic-api/component/` 并重启（同机部署）。详见 `references/component-page.md`。
 
@@ -164,6 +164,8 @@ gewumind-skill/
 ├── scripts/
 │   ├── docs-verify.mjs       # 文档校验门（--fix 自动修复）
 │   ├── sql-check.mjs         # SQL 参数化检查（防注入）
+│   ├── verify-publish.mjs    # 发布后验证：组件 / 接口 / 菜单
+│   ├── rollback.sh           # 回滚到备份版本 + 复验
 │   ├── ms-component.mjs      # .vue → .ms 组件页面
 │   └── sfc-compile.mjs       # SFC 编译（旧版 SQL 路线）
 └── knowledge/                # 知识库（按平台 / 语言 / 能力分类）

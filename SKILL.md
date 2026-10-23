@@ -54,7 +54,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 1. **阶段 1 · 需求**：与用户确认组织层级和角色 → 写 `docs/requirement.md`（7 节）→ 用户确认
 2. **阶段 2 · 设计**：从 requirement 派生 `ui.md` / `database.md` / `api.md` → 交叉一致性检查 → 用户确认
 3. **阶段 3 · 生成**：DDL → 预置数据 → magic-script（api/function/task）→ 组件页面（.vue → .ms）→ 菜单 SQL → 字典 SQL。**先数总数，再逐项生成，生成完逐一核对**
-4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 报告
+4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 跑 `scripts/verify-publish.mjs` → 报告；失败用 `scripts/rollback.sh` 回退
 
 **每阶段结束等用户确认再进下一阶段**。不要一口气跑完。
 
@@ -103,14 +103,15 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 15. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
 16. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
 17. **页面用 `.ms` 组件页面（1.0.0）**：目录 `src/magic-api/component/{中文组}/`，`group.json` 的 `path` + 组件 `path` = 菜单 `url`；菜单**不要写 `component_id`**。生成用 `scripts/ms-component.mjs`；发布是「复制到后端 `data/magic-api/component/` + 重启」。详见 `references/component-page.md`
-18. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
-19. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
-20. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
-21. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
-22. **SQL 必须参数化**：magic-script 里禁止 `"..." + var` 拼 SQL、禁止 SQL 里的 `${...}`；用 `#{param}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布。
-22. **task 的 `enabled` 默认是 `false`**（不是 true）：meta 不显式写 `"enabled": true` 时，任务会注册但**永不执行且无任何日志**。另：`log` 是模块必须 `import log`；`/task/execute` 在嵌入部署下 404，验证请用临时 cron `*/20 * * * * ?` + 重启。详见 `knowledge/task/05-pitfalls.md`
-23. **组件数据契约**：`mb-select` 多选 v-model 是**逗号拼接字符串**（不是数组）；`n-form` 的 model **不能整体替换引用**（要用 `$common.objAssign` 原地改），否则字段有值却过不了必填校验。详见 `knowledge/gewumind-boot/02-mb-form.md` §实测补充
-24. **发行包 ≠ 可直接部署**：`db/init/01-baseline.sql` 只有平台表，业务项目须另出 `02-<项目>-baseline.sql`；打包前必须先停实例（fat jar 运行中不可覆盖）。详见 `knowledge/gewumind-boot/26-delivery-and-baseline.md`
+18. **发布后必须验证**：`node scripts/verify-publish.mjs ...` 检查组件 / 接口 / 菜单，exit 0 才算完成；失败用 `scripts/rollback.sh --version <backupVersion>` 回退（`bundle_apply` 的响应里带 `backupVersion`）
+19. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
+20. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
+21. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
+22. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
+23. **SQL 必须参数化**：magic-script 里禁止 `"..." + var` 拼 SQL、禁止 SQL 里的 `${...}`；用 `#{param}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布。
+24. **task 的 `enabled` 默认是 `false`**（不是 true）：meta 不显式写 `"enabled": true` 时，任务会注册但**永不执行且无任何日志**。另：`log` 是模块必须 `import log`；`/task/execute` 在嵌入部署下 404，验证请用临时 cron `*/20 * * * * ?` + 重启。详见 `knowledge/task/05-pitfalls.md`
+25. **组件数据契约**：`mb-select` 多选 v-model 是**逗号拼接字符串**（不是数组）；`n-form` 的 model **不能整体替换引用**（要用 `$common.objAssign` 原地改），否则字段有值却过不了必填校验。详见 `knowledge/gewumind-boot/02-mb-form.md` §实测补充
+26. **发行包 ≠ 可直接部署**：`db/init/01-baseline.sql` 只有平台表，业务项目须另出 `02-<项目>-baseline.sql`；打包前必须先停实例（fat jar 运行中不可覆盖）。详见 `knowledge/gewumind-boot/26-delivery-and-baseline.md`
 
 ## 知识库索引（knowledge/）
 

@@ -131,7 +131,7 @@ ddl → menu → sfc → insert → dict
 | `GET /api/ai/icons` | 可用图标 |
 | `GET /api/ai/sfc-source` | 读已部署动态组件源码（修复时先看现状） |
 | `GET /api/ai/snapshot` | 发布前快照 |
-| `POST /api/ai/rollback` | 回退到快照 |
+| `POST /api/ai/rollback` | 回退到备份（body `{version}`） |
 | `POST /api/ai/backup/list` | 备份列表 |
 | `POST /api/ai/magic-api/repair` | 修复 magic-api 运行时与磁盘不一致 |
 | `GET/POST /api/ai/system-config` | 系统配置（logo/名称/登录背景） |
@@ -139,6 +139,32 @@ ddl → menu → sfc → insert → dict
 | `POST /api/ai/reset` | 重置（慎用） |
 
 > 路径前缀同样受"路径说明"影响：`/api/ai` 不通时换 `/ai`。
+
+## 发布后验证与回滚
+
+发布成功（`errors` 为空）后，先做只读验证，再向用户报告：
+
+```bash
+node scripts/verify-publish.mjs --base http://localhost:9089 \
+  --component 设备列表 --api /api/device/list --menu-url /device/list \
+  --username admin --password 123456
+```
+
+- 组件按 `/system/component/runtime/list` 的 `name` 或 `path` 匹配
+- 接口默认 `POST`，body `{"page":1,"size":1}`，用 `--api-body` / `--api-method` 覆盖
+- 菜单需要登录态：`--username/--password`（脚本自己 `sha256` 后登录）或 `--token <uuid>`
+- 退出码：0 全通过，1 有失败，2 参数错误
+
+验证失败时，回滚到发布前自动创建的备份版本（`bundle_apply` 响应的 `backupVersion`）：
+
+```bash
+scripts/rollback.sh --base http://localhost:9089 --version <backupVersion> \
+  --ai-key "$GW_AI_KEY" \
+  --component 设备列表 --api /api/device/list --menu-url /device/list \
+  --username admin --password 123456
+```
+
+`rollback.sh` = `POST /api/ai/rollback`（头 `X-AI-Key: <keyId>:<secret>`，body `{"version":"..."}`）+ 自动复验。
 
 ## 实测坑（2026-10 · gewumind-boot 1.0.0，务必对照）
 
@@ -192,4 +218,4 @@ if (x == null) { x = 1; }
 3. `bundle_apply`（MCP）或 `POST /api/ai/bundle/apply`（REST）
 4. `errors` 为空 → 报告 `appliedSql`/`appliedMs` 清单
 5. `errors` 非空 → 定位对应文件 → 修正 → **只重发失败部分或整体重发**（幂等设计允许整体重发）
-6. 需要回退 → `POST /ai/rollback`
+6. 需要回退 → `scripts/rollback.sh --version <backupVersion> --ai-key ...`（或 `POST /ai/rollback`）
