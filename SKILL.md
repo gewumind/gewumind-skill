@@ -107,6 +107,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 19. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
 20. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
 21. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
+22. **SQL 必须参数化**：magic-script 里禁止 `"..." + var` 拼 SQL、禁止 SQL 里的 `${...}`；用 `#{param}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布。
 22. **task 的 `enabled` 默认是 `false`**（不是 true）：meta 不显式写 `"enabled": true` 时，任务会注册但**永不执行且无任何日志**。另：`log` 是模块必须 `import log`；`/task/execute` 在嵌入部署下 404，验证请用临时 cron `*/20 * * * * ?` + 重启。详见 `knowledge/task/05-pitfalls.md`
 23. **组件数据契约**：`mb-select` 多选 v-model 是**逗号拼接字符串**（不是数组）；`n-form` 的 model **不能整体替换引用**（要用 `$common.objAssign` 原地改），否则字段有值却过不了必填校验。详见 `knowledge/gewumind-boot/02-mb-form.md` §实测补充
 24. **发行包 ≠ 可直接部署**：`db/init/01-baseline.sql` 只有平台表，业务项目须另出 `02-<项目>-baseline.sql`；打包前必须先停实例（fat jar 运行中不可覆盖）。详见 `knowledge/gewumind-boot/26-delivery-and-baseline.md`

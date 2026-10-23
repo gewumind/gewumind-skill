@@ -170,6 +170,7 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
    - **function**：遍历 api.md §10 每行：目录=`中文组名`，`group.json.path`=`groupPath` 列，.ms name=`name` 列，.ms path=`path` 列。完整 URL = groupPath + path
    - **task**：遍历 api.md §11 每行，结构同 function + cron
    - CRUD 写法：`knowledge/gewumind-boot/06-crud-api.md`；SQL 动态条件：`knowledge/database/01-sql.md`
+   - **SQL 安全**：生成后跑 `node scripts/sql-check.mjs <project>`；有拼接或 SQL 里的 `${}` 一律改 `#{}` / `?{}`，exit 0 再继续
 4. **组件页面（.ms）**：每个页面写 `src/pages/{name}.vue`（name 匹配 `^[a-zA-Z0-9\-_]+$`，**必须含模块前缀**如 device-list），然后：
    `node scripts/ms-component.mjs --vue src/pages/{name}.vue --group {中文组} --group-path /{英文组} --name {中文页面名} --path /{页面路径} --out src/magic-api/component`
    产出 `src/magic-api/component/{中文组}/group.json` + `{页面名}.ms`。
@@ -208,7 +209,9 @@ node scripts/docs-verify.mjs <project-root> --json       # JSON 输出
 
 ## 阶段 4 · 发布
 
-见 `references/publish-protocol.md`。要点：
+见 `references/publish-protocol.md`。**发布前：`node scripts/sql-check.mjs <project>` 必须 exit 0。**
+
+要点：
 
 1. （可选稳妥做法）先调 REST `GET /ai/snapshot` 做发布前快照
 2. 收集产物 → `bundle_apply`（MCP 工具或 REST）

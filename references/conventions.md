@@ -24,6 +24,7 @@
 - 请求扁平字段（`{current, size, where: {...}, officeId?}`），响应 `{code, data, msg}`
 - 组织管理：`/sys/office/list|save|delete`（权限码 `office:*`）；字典类型：`/sys/dict/{type}/items`（`dict:*`）
 - magic-script CRUD 模板：`knowledge/gewumind-boot/06-crud-api.md`（`db.page`/`db.table`/`db.selectOne`/`db.update`，参数 `#{param}`，动态条件 `?{param, and x = #{param}}`）
+- **SQL 安全**：禁止 SQL 字符串拼接（`'%" + x`、`= '" + x`、`${x}`）；一律用 `#{x}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布
 
 ## 组件页面（.ms）硬规则（1.0.0）
 
