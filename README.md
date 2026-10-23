@@ -137,7 +137,7 @@ Agent 会按四阶段执行，并在每阶段结束等你确认。
 
 发布后跑 `node scripts/verify-publish.mjs` 检查组件 / 接口 / 菜单；失败用 `scripts/rollback.sh` 回退到 `backupVersion`。
 
-> **发布说明**：SQL / 菜单 / 字典走 `bundle_apply`；页面是 `.ms` 组件，需要把 `src/magic-api/component/` 复制到后端的 `data/magic-api/component/` 并重启（同机部署）。详见 `references/component-page.md`。
+> **发布说明**：SQL / 菜单 / 字典走 `bundle_apply`；页面是 `.ms` 组件，内核 0.3.1+ 直接用 `bundle_apply`（`kind: component`）发布，旧版内核才需要复制到后端 `data/magic-api/component/` 并重启。详见 `references/component-page.md`。
 
 ## MCP 工具
 

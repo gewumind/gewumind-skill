@@ -87,13 +87,28 @@ Content-Type: application/json
 - `sql[].name`：文件标识（发布日志用）；`content` 可含多条分号分隔语句
 - `ms[]` 字段语义（与后端 `writeMagicScript` 对齐）：
   - `group`：中文目录链，`/` 分隔（`"设备管理/设备登记"` = 两层嵌套）；后端自动逐级建目录 + group.json
-  - `kind`：`api`（默认）/ `function` / `task`
+  - `kind`：`api`（默认）/ `function` / `task` / `component`（内核 0.3.1+）
   - `name`：中文脚本名（如 `列表`）→ 落盘 `{groupDir}/{name}.ms`
   - `method`：默认 POST；`path`：默认 `/{name}`，建议显式传英文 kebab（`/list`）
   - `permission`：权限码；`cron`：task 必填；`metaJson`：可选，完整 meta JSON 字符串（保留 parameters/returnType/options 等高级字段，后端会覆盖 id/groupId/name/path）
   - `groupPath`：仅顶级单段时生效（英文 URL 段，如 `device`）；嵌套层由后端查表推断，一般不用管
+  - `component`：`metaJson` 必须含 `compileJs`/`compileCss`（用 `ms-component.mjs --publish` 生成），`path` 相对 `groupPath`；后端写 `data/magic-api/component/{group}/{name}.ms`
 - `migrate[]`：已有表的结构变更（ALTER/DROP），与 sql 分开走
 - `selectedFiles`：非 null 时只发布列表内的 SQL（name 或 basename 匹配）——部分发布
+
+组件页面示例（0.3.1+）：
+
+```json
+{
+  "ms": [{
+    "group": "设备管理", "groupPath": "/device",
+    "name": "设备列表", "path": "/list",
+    "kind": "component",
+    "script": "<Vue SFC 源码>",
+    "metaJson": "{\"compileJs\":\"...\",\"compileCss\":\"...\"}"
+  }]
+}
+```
 
 ### 响应
 
@@ -177,7 +192,7 @@ scripts/rollback.sh --base http://localhost:9089 --version <backupVersion> \
 <project>/file:./data/magic-api/api/设备管理/列表.ms
 ```
 
-即多出一层字面量 `file:` 目录。**发布后必须检查**：若存在 `<project>/file:./data/...`，把整个分组目录移到 `<project>/data/magic-api/api/`，再重启（或调 `POST /api/ai/magic-api/repair`）。否则接口一直 404。
+即多出一层字面量 `file:` 目录。**0.3.1+ 已修复**（`getMagicApiDataDir` 会剥掉 `file:` 前缀）。旧版（1.0.0）发布后仍须检查：若存在 `<project>/file:./data/...`，把整个目录移到 `<project>/data/magic-api/`，再重启（或调 `POST /api/ai/magic-api/repair`）。
 
 ### 2. `.ms` 分隔符必须 CRLF 包围（后端自己会写错）
 标准格式：

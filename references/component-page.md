@@ -69,26 +69,33 @@ VALUES
 
 ## 发布
 
-`bundle_apply` 只接受 `kind: api/function/task`，**不能直接发布组件**。同机部署时：
+内核 **0.3.1+** 支持 `bundle_apply` 直接发布组件（`kind: "component"`）：
+
+```bash
+# 1) 编译 SFC → bundle_apply 需要的 JSON（不写本地文件）
+node scripts/ms-component.mjs --vue src/pages/device-list.vue \
+  --group 设备管理 --group-path /device --name 设备列表 --path /list --publish
+
+# 2) 把输出的 ms[0] 原样放进 bundle_apply 的 ms[]
+#    metaJson 必须含 compileJs / compileCss
+```
+
+后端写入 `data/magic-api/component/{group}/{name}.ms`（自动建 `group.json`），
+`/system/component/runtime/list` 立即可见；菜单仍需单独的 `sys_menu` INSERT（`url = groupPath + path`）。
+
+旧版内核（0.3.0 / 1.0.0）没有 `kind: component`，只能同机复制 + 重启：
 
 ```bash
 cp -r src/magic-api/component/设备管理 <backend>/data/magic-api/component/
-# 重启后端（或刷新 magic-api 资源）
 ```
 
-验证：
+验证（推荐脚本，登录 + 组件 + 接口 + 菜单一次跑完）：
 
 ```bash
-# 运行时组件（需要登录 token）
-curl -H "token: <session-token>" http://localhost:9089/system/component/runtime/list \
-  | jq '.[]? | select(.path=="/device/list")'
-
-# 菜单
-curl -X POST -H "token: <session-token>" \
-  http://localhost:9089/api/system/menu/current/menus -d '{}' | jq
+node scripts/verify-publish.mjs --base http://localhost:9089 \
+  --component 设备列表 --api /api/device/list --menu-url /device/list \
+  --username admin --password 123456
 ```
-
-远程后端没有组件保存接口：要么后端侧复制 + 重启，要么给 `bundle_apply` 增加 `kind: component`。
 
 ## 可选：归入模块标签
 
@@ -100,7 +107,7 @@ curl -X POST -H "token: <session-token>" \
 |---|---|---|
 | 存储 | 文件 | 数据库表 |
 | 菜单关联 | `url` 路径 | `component_id`（1.0.0 无此列） |
-| 发布 | 复制文件 + 重启 | SQL `INSERT` + `bundle_apply` |
+| 发布 | `bundle_apply`（kind=component，0.3.1+）/ 复制+重启（旧版） | SQL `INSERT` + `bundle_apply` |
 | 适用 | 1.0.0 的页面 | 旧版 / 动态组件 |
 
 ## 常见问题

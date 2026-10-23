@@ -11,8 +11,9 @@
  *     --vue src/pages/device-list.vue \
  *     --group 设备管理 --group-path /device \
  *     --name 设备列表 --path /list \
- *     [--out src/magic-api/component]
+ *     [--out src/magic-api/component] [--publish]
  *
+ * --publish 只输出 bundle_apply 需要的 JSON（kind=component + metaJson），不写本地文件。
  * 输出菜单 url = group-path + path（如 /device/list）。
  * 依赖：@vue/compiler-sfc、@babel/parser（与 sfc-compile.mjs 相同）。
  */
@@ -74,16 +75,6 @@ if (error) {
 
 const gid = nameToUuid(group);
 const cid = nameToUuid(group + '/' + name);
-const gdir = join(out, group);
-mkdirSync(gdir, { recursive: true });
-
-const gj = join(gdir, 'group.json');
-if (!existsSync(gj)) {
-  writeFileSync(gj, JSON.stringify({
-    properties: {}, id: gid, name: group, type: 'component',
-    parentId: '0', path: groupPath, paths: [], options: [],
-  }, null, 2));
-}
 
 const meta = {
   properties: { type: 1, remark: null, entryApi: null, group: null, compileJs, compileCss },
@@ -104,6 +95,33 @@ const meta = {
   compileCss,
   group: null,
 };
+
+if (process.argv.includes('--publish')) {
+  console.log(JSON.stringify({
+    menuUrl: groupPath + path,
+    ms: [{
+      group,
+      groupPath,
+      name,
+      path,
+      kind: 'component',
+      script: source,
+      metaJson: JSON.stringify(meta),
+    }],
+  }, null, 2));
+  process.exit(0);
+}
+
+const gdir = join(out, group);
+mkdirSync(gdir, { recursive: true });
+
+const gj = join(gdir, 'group.json');
+if (!existsSync(gj)) {
+  writeFileSync(gj, JSON.stringify({
+    properties: {}, id: gid, name: group, type: 'component',
+    parentId: '0', path: groupPath, paths: [], options: [],
+  }, null, 2));
+}
 
 const SEP = '='.repeat(32);
 const content = JSON.stringify(meta, null, 2) + '\r\n' + SEP + '\r\n' + source;
