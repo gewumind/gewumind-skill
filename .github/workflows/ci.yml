@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: 脚本自检
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 检出
+        uses: actions/checkout@v4
+
+      - name: 安装 Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 版本号格式
+        run: |
+          grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' VERSION
+          echo "skill VERSION=$(cat VERSION)"
+
+      - name: 语法检查
+        run: |
+          set -euo pipefail
+          for f in scripts/*.mjs; do node --check "$f"; done
+          bash -n scripts/rollback.sh
+
+      - name: SQL 参数化检查（fixtures）
+        run: |
+          set +e
+          node scripts/sql-check.mjs scripts/__fixtures__/unsafe.ms
+          unsafe=$?
+          node scripts/sql-check.mjs scripts/__fixtures__/safe.ms
+          safe=$?
+          set -e
+          echo "sql-check: unsafe=$unsafe safe=$safe"
+          test "$unsafe" -eq 1
+          test "$safe" -eq 0
+
+      - name: 发布脚本存在性
+        run: |
+          test -f scripts/verify-publish.mjs
+          test -f scripts/rollback.sh
+          test -f scripts/ms-component.mjs
