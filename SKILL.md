@@ -5,7 +5,7 @@ description: Build complete business applications on a running GewuMind Boot (ma
 
 # GewuMind Boot Development Skill
 
-> Version 1.0.3 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
+> Version 1.1.0 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
 > Chinese reference: `SKILL.zh.md`. Deep platform knowledge: `knowledge/` (Chinese).
 
 Turn a natural-language requirement into a **publishable business application**: SQL tables + magic-api scripts + Vue dynamic components + menu/dictionary data, published with one `bundle_apply`.

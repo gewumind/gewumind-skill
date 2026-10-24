@@ -3,7 +3,7 @@
 > 把 GewuMind Boot 的后端能力，变成任何 AI Agent 都能用的开发技能。
 > An agent-agnostic skill that turns requirements into a running low-code backend.
 >
-> **版本 1.0.3** · 与 [gewumind-boot](https://github.com/gewumind/gewumind-boot) 同版本发布。
+> **版本 1.1.0** · 与 [gewumind-boot](https://github.com/gewumind/gewumind-boot) 同版本发布。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Cursor%20%7C%20opencode-111)](#安装)
