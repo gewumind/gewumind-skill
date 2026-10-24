@@ -156,13 +156,16 @@ Agent 会按四阶段执行，并在每阶段结束等你确认。
 
 ```text
 gewumind-skill/
-├── SKILL.md                  # Agent 入口：先读这个
+├── SKILL.md                  # Agent 入口（英文）
+├── SKILL.zh.md               # 中文参考
+├── README.en.md              # English README
 ├── references/
 │   ├── pipeline.md           # 四阶段管线与退出条件
 │   ├── conventions.md        # 表 / SFC / 菜单 / 字典 / API 硬约定
 │   ├── component-page.md     # .ms 组件页面规范（1.0.0 页面机制）
 │   ├── sfc-compile.md        # .vue → 动态组件 SQL 编译规则（旧版）
-│   └── publish-protocol.md   # bundle_apply / MCP / REST 协议
+│   ├── publish-protocol.md   # bundle_apply / MCP / REST 协议
+│   └── en/                   # 英文核心文档（pipeline/conventions/component-page/publish-protocol）
 ├── scripts/
 │   ├── docs-verify.mjs       # 文档校验门（--fix 自动修复）
 │   ├── sql-check.mjs         # SQL 参数化检查（防注入）

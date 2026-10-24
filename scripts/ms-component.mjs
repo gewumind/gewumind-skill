@@ -11,9 +11,10 @@
  *     --vue src/pages/device-list.vue \
  *     --group 设备管理 --group-path /device \
  *     --name 设备列表 --path /list \
- *     [--out src/magic-api/component] [--publish]
+ *     [--out src/magic-api/component] [--publish] [--delete]
  *
  * --publish 只输出 bundle_apply 需要的 JSON（kind=component + metaJson），不写本地文件。
+ * --delete 只输出删除载荷（group + name + kind=component + action=delete）。
  * 输出菜单 url = group-path + path（如 /device/list）。
  * 依赖：@vue/compiler-sfc、@babel/parser（与 sfc-compile.mjs 相同）。
  */
@@ -33,6 +34,18 @@ const groupPath = arg('group-path');
 const name = arg('name');
 const path = arg('path');
 const out = resolve(arg('out', 'src/magic-api/component'));
+const delFlag = process.argv.includes('--delete');
+
+if (delFlag) {
+  if (!group || !name) {
+    console.error('用法: node scripts/ms-component.mjs --delete --group <中文组> --name <页面名>');
+    process.exit(1);
+  }
+  console.log(JSON.stringify({
+    ms: [{ group, name, kind: 'component', action: 'delete' }],
+  }, null, 2));
+  process.exit(0);
+}
 
 // 更新已有 .ms：保留 id/groupId/name/path，只替换 SFC 与 compileJs/Css
 if (update) {

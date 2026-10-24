@@ -1,132 +1,124 @@
 ---
 name: gewumind-boot
-description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开发完整业务应用。四阶段管线：需求文档 → ui/database/api 设计文档 → 生成 DDL SQL / magic-script / .ms 组件页面 / 菜单与字典 SQL → 一键发布到后端。当用户要"做业务页面 / 增删改查模块 / 加菜单 / 加字典 / 写 magic-api 脚本 / 发布到 gewumind-boot"时使用。
+description: Build complete business applications on a running GewuMind Boot (magic-api low-code backend). Four-stage pipeline: requirement → UI/database/API design → DDL SQL / magic-script / .ms component pages / menu & dictionary SQL → one-shot publish. Use when the user asks to build a business page, a CRUD module, a menu, a dictionary, a magic-api script, or to publish to gewumind-boot (做业务页面 / 增删改查模块 / 加菜单 / 加字典 / 写 magic-api 脚本 / 发布).
 ---
 
-# GewuMind Boot 开发 Skill
+# GewuMind Boot Development Skill
 
-> 版本 1.0.3（`VERSION`）——与 `gewumind-boot` 保持同一版本号，两者同 tag 发布。
+> Version 1.0.3 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
+> Chinese reference: `SKILL.zh.md`. Deep platform knowledge: `knowledge/` (Chinese).
 
-把一个自然语言需求变成**可发布的业务应用**：SQL 建表 + magic-api 脚本 + Vue 动态组件 + 菜单/字典数据，最后通过 `bundle_apply` 一次推送到运行中的 GewuMind Boot 后端。
+Turn a natural-language requirement into a **publishable business application**: SQL tables + magic-api scripts + Vue dynamic components + menu/dictionary data, published with one `bundle_apply`.
 
-## 前提：确认环境
+## 1. Prerequisites
 
-开始任何工作前，先确认两件事（问用户或探测）：
+1. **Backend URL** (default `http://localhost:9089`). Probe `GET /ai/health` or `GET /api/ai/health` (the prefix varies by version; see `references/en/publish-protocol.md`).
+2. **Access** (pick one):
+   - **MCP** (recommended): `/mcp`; tools `status_check`, `bundle_apply`, `sql_execute`, `file_receive`, `data_query`, `docs_push`.
+   - **REST**: `POST /api/ai/bundle/apply` with `X-AI-Key: <keyId>:<secret>`.
 
-1. **后端地址**（默认 `http://localhost:9089`）—— 健康探测：`GET /ai/health` 或 `GET /api/ai/health`（不同版本前缀不同，见 `references/publish-protocol.md` §路径说明）
-2. **接入方式**（二选一，推荐 MCP）：
-   - **MCP Server**（推荐）：后端自带 `/mcp` MCP 端点，配置方法见 `references/publish-protocol.md` §MCP。工具：`status_check` / `bundle_apply` / `sql_execute` / `file_receive` / `data_query` / `docs_push`
-   - **REST**：`POST /api/ai/bundle/apply` + `X-AI-Key: <keyId>:<secret>` 头
+If the backend is unreachable, **stop** and tell the user. Do not invent artifacts.
 
-如果连不上后端，**先停下**告诉用户，不要凭空生成产物。
+## 2. Workspace
 
-## 项目工作区布局
-
-所有生成物写在**项目工作区**（用户指定目录，参考下面的结构）：
-
-```
+```text
 {project}/
 ├── docs/
-│   ├── requirement.md    # 阶段 1：需求规格（7 节）
-│   ├── ui.md             # 阶段 2：界面设计（菜单树 + 页面详情）
-│   ├── database.md       # 阶段 2：数据库设计（表结构 + 字典清单）
-│   └── api.md            # 阶段 2：API 设计（路径树 + 端点 + 函数表 + 任务表）
+│   ├── requirement.md    # stage 1: requirement (7 sections)
+│   ├── ui.md             # stage 2: menu tree + page details
+│   ├── database.md       # stage 2: tables + dictionaries
+│   └── api.md            # stage 2: paths + endpoints + functions + tasks
 ├── src/
 │   ├── sql/
-│   │   ├── ddl/{table}.sql        # 建表（发布顺序 1）
-│   │   ├── menu/{中文-中文}.sql    # 菜单 INSERT（发布顺序 2）
-│   │   ├── sfc/{name}.sql         # SFC 组件 INSERT（发布顺序 3）
-│   │   ├── insert/{table}.sql     # 预置数据（发布顺序 4）
-│   │   ├── dict/{dict_type}.sql   # 字典 INSERT（发布顺序 5）
-│   │   └── migrate/V{ts}_*.sql    # 已有表的结构变更
+│   │   ├── ddl/{table}.sql        # publish order 1
+│   │   ├── menu/{name}.sql        # publish order 2 (including sys_role_menu)
+│   │   ├── sfc/{name}.sql         # legacy SFC route (order 3)
+│   │   ├── insert/{table}.sql     # seed data (order 4)
+│   │   ├── dict/{dict_type}.sql   # dictionaries (order 5)
+│   │   └── migrate/V{ts}_*.sql    # existing-table changes
 │   ├── magic-api/
-│   │   ├── api/{中文组名}/.../*.ms + group.json   # 业务 API
-│   │   ├── function/{中文组名}/...                # 公共函数
-│   │   ├── task/{中文组名}/...                    # 定时任务
-│   │   └── component/{中文组}/.../*.ms + group.json   # 组件页面（1.0.0）
-│   └── pages/{name}.vue         # 页面源码（编译进 .ms）
+│   │   ├── api/{group}/.../*.ms + group.json
+│   │   ├── function/{group}/...
+│   │   ├── task/{group}/...
+│   │   └── component/{group}/.../*.ms + group.json
+│   └── pages/{name}.vue           # compiled into .ms
 ```
 
-**4 份 docs 是真相源**。代码永远从 docs 派生，不允许 docs 里没写东西出现在产物里。
+**The four docs are the source of truth.** Derive code from them; never generate something the docs do not describe.
 
-## 四阶段管线（核心流程）
+## 3. Four-stage pipeline
 
-完整流程、每阶段退出条件、硬格式约束：**读 `references/pipeline.md`**。概要：
+1. **Requirement**: confirm organization levels and roles; write `docs/requirement.md` (7 sections); get confirmation.
+2. **Design**: derive `docs/ui.md`, `database.md`, `api.md`; cross-check; get confirmation.
+3. **Generate**: DDL → seed data → magic-script (api/function/task) → component pages (`.vue` → `.ms`) → menu SQL (+ role bindings) → dictionary SQL. Count the total first, generate item by item, then verify each.
+4. **Publish**: `bundle_apply` (MCP or REST) → check `errors` → run `scripts/verify-publish.mjs` → report; on failure run `scripts/rollback.sh --version <backupVersion>`.
 
-1. **阶段 1 · 需求**：与用户确认组织层级和角色 → 写 `docs/requirement.md`（7 节）→ 用户确认
-2. **阶段 2 · 设计**：从 requirement 派生 `ui.md` / `database.md` / `api.md` → 交叉一致性检查 → 用户确认
-3. **阶段 3 · 生成**：DDL → 预置数据 → magic-script（api/function/task）→ 组件页面（.vue → .ms）→ 菜单 SQL → 字典 SQL。**先数总数，再逐项生成，生成完逐一核对**
-4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 跑 `scripts/verify-publish.mjs` → 报告；失败用 `scripts/rollback.sh` 回退
+Wait for user confirmation after each stage. Do not run all stages in one go.
 
-**每阶段结束等用户确认再进下一阶段**。不要一口气跑完。
+**Docs gate**: after stages 1/2 run `node scripts/docs-verify.mjs <project-root>` (`--fix` auto-fixes formatting); exit 0 is required.
 
-**docs 校验门**：阶段 1/2 写完 docs 后必须跑 `node scripts/docs-verify.mjs <project-root>`（`--fix` 可程序化自动修复格式问题），exit 0 才能进下一阶段。校验规则 = `knowledge/gewumind-boot/19a-19e` 文档规范（IDE `validateDocs` 的整体移植）。
+## 4. Read before generating
 
-## 生成代码前必读
-
-| 要做什么 | 先读哪个 |
+| Task | Read first |
 |---|---|
-| 写 / 改 4 份 docs（阶段 1/2） | `references/pipeline.md` §docs 校验门 + 写完跑 `node scripts/docs-verify.mjs <project-root>`（`--fix` 自动修格式） |
-| 改前端 / 重新部署 / 打包发行版 | `knowledge/gewumind-boot/21-frontend-build-deploy.md` |
-| 不知道怎么开发 / 要不要装 IDEA / 怎么联调调试 | `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`（含**监听调试**这个 magic-api 没有的自研能力） |
-| 直接读写 `.ms` 文件 | `knowledge/server-plugin/01-structure.md` §分隔符必须带首尾 `\r\n` |
-| 写组件页面（`.ms`） | `references/component-page.md` + `knowledge/gewumind-boot/04b-sfc-vue-codegen.md` |
-| 写 `.vue`（SFC 表路线，旧版） | `references/conventions.md` §SFC 硬规则 + `knowledge/gewumind-boot/04-dynamic-sfc.md` |
-| `.vue` → SFC SQL（编译） | `references/sfc-compile.md` |
-| 建表 / 公共字段 / 命名 | `references/conventions.md` §表规范 + `knowledge/gewumind-boot/00-table-schema.md` |
-| 写 magic-script CRUD | `knowledge/gewumind-boot/06-crud-api.md` + `knowledge/database/01-sql.md` |
-| magic-api 语法（lambda/import/类型） | `knowledge/api/` 目录 |
-| 菜单 SQL | `knowledge/gewumind-boot/05-menu-register.md` |
-| 模块组织（可选，不是必绑） | `knowledge/gewumind-boot/23-module-organization.md` |
-| 改首页 / dashboard | `knowledge/gewumind-boot/24-home-dashboard.md` |
-| 字典 SQL | `knowledge/gewumind-boot/13-data-dictionary.md` |
-| 发布 / bundle apply | `references/publish-protocol.md` |
-| 工作流 / 报表 / 插件 | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
-| 写定时任务（task .ms） | `knowledge/task/05-pitfalls.md`（**enabled 默认 false、log 必须 import、验证手法**） |
-| 组件数据契约踩坑 | `knowledge/gewumind-boot/01-mb-table.md` §实测补充 + `02-mb-form.md` §实测补充（多选是逗号串、model 不能换引用） |
-| 打包发行版 / 数据库基线 | `knowledge/gewumind-boot/26-delivery-and-baseline.md`（dist 打包、两层基线、还原验证） |
+| Write/change the four docs | `references/en/pipeline.md` + `node scripts/docs-verify.mjs <project-root>` |
+| Frontend build / deploy / package | `knowledge/gewumind-boot/21-frontend-build-deploy.md` |
+| Debugging / dev paths | `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md` |
+| Read/write `.ms` files | `knowledge/server-plugin/01-structure.md` (CRLF separator) |
+| Component pages (`.ms`) | `references/en/component-page.md` |
+| Legacy SFC | `references/en/conventions.md` + `references/sfc-compile.md` |
+| Tables / fields / naming | `references/en/conventions.md` |
+| magic-script CRUD | `knowledge/gewumind-boot/06-crud-api.md` + `knowledge/database/01-sql.md` |
+| Menu SQL + role binding | `knowledge/gewumind-boot/05-menu-register.md` |
+| Dictionaries | `knowledge/gewumind-boot/13-data-dictionary.md` |
+| Publish / bundle apply | `references/en/publish-protocol.md` |
+| Workflow / report / plugins | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
+| Tasks | `knowledge/task/05-pitfalls.md` |
+| Component contracts | `knowledge/gewumind-boot/01-mb-table.md`, `02-mb-form.md` |
+| Release / DB baseline | `knowledge/gewumind-boot/26-delivery-and-baseline.md` |
 
-## 铁律（违反必然出 bug）
+## 5. Iron rules
 
-1. **不直接执行 SQL 改库**——所有变更写成脚本文件，走 `bundle_apply` 发布（`sql_execute` 只用于诊断查询）
-2. `sys_*` / `magic_*` 是系统表，**不要 CREATE TABLE**，只 INSERT 数据
-3. `/system` 路径已被系统占用，禁止生成
-4. 组织机构用系统自带 `sys_office`，不要新建 t_company/t_dept 之类的表
-5. `.vue` 里 API 调用用 `$common.post` / `$common.handleDelete`，**不用** `fetch()`/`axios`；路径**不加** `/api` 前缀
-6. 每个按钮独立权限码，禁止复用；权限码格式 `<模块>:<动作>`
-7. 表名 `t_xxx`；每张表显式列出全部公共字段（id/is_del/create_by/create_date/update_by/update_date），不允许「同上」
-8. 菜单 SQL 文件名全中文；SFC 的 id/pid 用 name 派生的确定性 UUID（见 `references/sfc-compile.md`），禁止硬编码随机 UUID
-9. 发布失败 → 读 errors → 修文件 → 重新发布。后端有发布前自动备份，必要时走 rollback 端点
-10. **读写任何 `.ms` 文件，分隔符必须带首尾 `\r\n`**（`"\r\n" + 32个"=" + "\r\n"`）。漏掉会让后端 `indexOf(SEPARATOR)` 返回 -1，把整个文件当源码，在线编辑里表现为"内容是空的"。详见 `knowledge/server-plugin/01-structure.md`
-11. **改前端后必须重建 + 同步 + 重打包**；且**实例运行期间禁止原地 `mvn package` 覆盖 fat jar**（会让运行中的实例抛 `NoClassDefFoundError` 并返回 404）。顺序恒为 stop → package → start。详见 `knowledge/gewumind-boot/21-frontend-build-deploy.md`
-12. **先问用户走哪条开发路径**（导入 IDEA / 下 release 在线开发 / 用 skill）。只做业务功能时应推荐 **release + 在线开发**，不要让用户去装 IDEA 拉源码
-13. **报表是 Vue SFC + `<MagicReport>`，不是 JSON 描述符**；组件用 `postJson` 调用，所以报表接口必须用 `body` 取参。详见 `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`
-14. **前后台联调推荐「监听调试」**（本项目独有，magic-api 没有）：设断点后点工具栏「监听调试」，再从前端触发接口，可用真实入参逐行调试
-15. **magic-script 不支持 `??`（null 合并）**：`body.x ?? 1`、`body.where ?? {}` 直接解析报错，必须写 `if (x == null)`。示例库里的 `??` 是过期写法，见 `knowledge/gewumind-boot/10-magic-script.md` §5
-16. **1.0.0 的 `bundle_apply` 有两个落盘坑**：① 可能写到 `<project>/file:./data/magic-api/...`（多一层 `file:`）；② 分隔符写成 `\n====\r\n`（应为 `\r\n====\r\n`）。发布后必须二进制校验并移动到正确目录，否则脚本为 null / 接口 404。详见 `references/publish-protocol.md` §实测坑
-17. **页面用 `.ms` 组件页面（1.0.0）**：目录 `src/magic-api/component/{中文组}/`，`group.json` 的 `path` + 组件 `path` = 菜单 `url`；菜单**不要写 `component_id`**。生成用 `scripts/ms-component.mjs`（`--publish` 输出 `bundle_apply` 的 `kind=component` JSON）；内核 0.3.1+ 直接远程发布，旧版才复制 + 重启。详见 `references/component-page.md`
-18. **发布后必须验证**：`node scripts/verify-publish.mjs ...` 检查组件 / 接口 / 菜单，exit 0 才算完成；失败用 `scripts/rollback.sh --version <backupVersion>` 回退（`bundle_apply` 的响应里带 `backupVersion`）
-19. **1.0.0 踩坑清单见 `knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**：驼峰字段（`sql-column-case: camel` → 组件 `cols.field`/`where` 必须驼峰）、前端首屏 POST 无 body（脚本必须判空）、`?{}`/`#{}` 只认脚本变量、免登录要 `anonymous`+`require_login` 两个选项、`.ms` 的 `groupId` 必须等于父 `group.json` 的 `id`（否则启动 NPE 全站 404）、**平台自带 api/function/组件不能删**、按钮权限要「菜单行+角色授权」两份、`db.table().insert()` 不生成 varchar 主键
-20. **别和平台自带模块重复**：`system 用户管理 / 角色管理` 已覆盖 `sys_user` / `sys_role`；自己做业务表（`t_*`）的模块即可，重复入口会互相覆盖数据
-21. **新建菜单必须带图标**：`sys_menu.icon` 不能为空；从 `knowledge/gewumind-boot/16-icon-library.md` 的可用图标里选（PascalCase 或 kebab-case），生成菜单 SQL 后逐条校验 icon 非空
-22. **应用侧联调口径**：业务接口是 `/api/...`，登录头是 `token: <uuid>`；在线编程编辑器在 `/#/lowcode/magic-editor`（本构建 `/magic/web` 为 404）；写菜单前先 `SHOW COLUMNS FROM sys_menu`（可能没有 `component_id`）
-23. **SQL 必须参数化**：magic-script 里禁止 `"..." + var` 拼 SQL、禁止 SQL 里的 `${...}`；用 `#{param}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布。
-24. **task 的 `enabled` 默认是 `false`**（不是 true）：meta 不显式写 `"enabled": true` 时，任务会注册但**永不执行且无任何日志**。另：`log` 是模块必须 `import log`；`/task/execute` 在嵌入部署下 404，验证请用临时 cron `*/20 * * * * ?` + 重启。详见 `knowledge/task/05-pitfalls.md`
-25. **组件数据契约**：`mb-select` 多选 v-model 是**逗号拼接字符串**（不是数组）；`n-form` 的 model **不能整体替换引用**（要用 `$common.objAssign` 原地改），否则字段有值却过不了必填校验。详见 `knowledge/gewumind-boot/02-mb-form.md` §实测补充
-26. **发行包 ≠ 可直接部署**：`db/init/01-baseline.sql` 只有平台表，业务项目须另出 `02-<项目>-baseline.sql`；打包前必须先停实例（fat jar 运行中不可覆盖）。详见 `knowledge/gewumind-boot/26-delivery-and-baseline.md`
+1. **Never execute ad-hoc SQL**; write scripts and publish via `bundle_apply` (`sql_execute` is read-only diagnostics).
+2. Never `CREATE TABLE` for `sys_*`/`magic_*`; only INSERT data.
+3. Never generate `/system` paths.
+4. Use the built-in `sys_office` for organization; do not create `t_company`/`t_dept`.
+5. In `.vue`, use `$common.post` / `$common.handleDelete`; no `fetch`/`axios`; no `/api` prefix.
+6. One permission code per button, unique; `<module>:<action>`.
+7. Tables `t_*`; list all common columns explicitly (`id/is_del/create_by/create_date/update_by/update_date`); no "same as above".
+8. Menu SQL filenames in the project language; deterministic UUIDs for SFC ids; no random UUIDs.
+9. On publish failure: read `errors` → fix → republish. The backend takes a pre-publish backup; use rollback if needed.
+10. `.ms` separator must be `\r\n` + 32 `=` + `\r\n`; otherwise the file is treated as source and appears empty.
+11. After frontend changes rebuild + sync + repackage; never overwrite a running fat jar (`stop → package → start`).
+12. Ask which development path the user wants (IDEA / release + online dev / skill); recommend release + online dev for business-only work.
+13. Reports are Vue SFC + `<MagicReport>`, not JSON; use `body` params.
+14. "Listen debug" is the recommended frontend/backend debugging flow (breakpoint → listen → trigger → real params).
+15. magic-script does not support `??`; use `if (x == null)`.
+16. `bundle_apply` pitfalls: the `file:` path bug (fixed in 0.3.1+) and the `\n====\r\n` separator (must be `\r\n====\r\n`). Always verify the separator.
+17. Component pages: `src/magic-api/component/{group}/`; `group.json.path` + component `path` = menu `url`; no `component_id`. Use `scripts/ms-component.mjs` (`--publish` outputs the `kind=component` payload). Kernel 0.3.1+ publishes remotely; older kernels copy + restart.
+18. Always verify after publish: `node scripts/verify-publish.mjs ...` (component/API/menu), exit 0. On failure, `scripts/rollback.sh --version <backupVersion>`.
+19. 1.0.0 pitfalls: camelCase fields; frontend first POST has no body (guard null); `?{}`/`#{}` only script variables; anonymous needs `anonymous` + `require_login=false`; `.ms` `groupId` = parent `group.json` id; never delete platform APIs/components; button permissions need both the menu row and role grant; `db.table().insert()` does not generate varchar PKs.
+20. Do not duplicate platform modules (`sys_user`/`sys_role`); build `t_*` business tables only.
+21. Menus must have an icon (`sys_menu.icon` non-empty); choose from the icon library; validate each row.
+22. App integration: business APIs are `/api/...`; login header `token: <uuid>`; editor `/#/lowcode/magic-editor`; check `SHOW COLUMNS FROM sys_menu` before writing menus (no `component_id`).
+23. SQL must be parameterized: no `"..." + var`, no `${...}`; use `#{param}` / `?{cond}`; run `node scripts/sql-check.mjs <project>` (exit 0) before publishing.
+24. Task `enabled` defaults to false; set `"enabled": true`; `import log`; verify with a temporary cron + restart.
+25. Component data contracts: `mb-select` multiple = comma-separated string; `n-form` model must be mutated in place (`$common.objAssign`).
+26. A release package is not a deployable business baseline: add `02-<project>-baseline.sql`; stop the instance before packaging.
+27. **Permission-aware publish**: every business menu must be granted to a role. Write `sys_menu` + `sys_role_menu` (and `sys_permission_code` for buttons) in the same bundle; otherwise non-admin users cannot see the menu. Verify with a non-admin role.
+28. **Component delete**: `kind=component` + `action=delete` (kernel 0.3.2+); `scripts/ms-component.mjs --delete` prints the payload. Deleting a component does not delete its menu; remove the menu separately.
+29. **Output language**: reply in the user's language; write docs, menu names, and field comments in the project language.
 
-## 知识库索引（knowledge/）
+## 6. Knowledge index
 
-| 目录 | 内容 | 何时查 |
-|---|---|---|
-| `gewumind-boot/` (32 篇) | **本项目平台约定**：表规范、mb-* 组件（含实测契约）、SFC 机制、菜单、CRUD 模板、bundle 发布、报表、字典、图标、系统配置、**前端构建部署**、**发行打包与数据库基线** | 生成任何产物前 |
-| `api/` (14 篇) | magic-api 脚本语言：语法/请求/响应/模块/数据库/插件 | 写 .ms 时 |
-| `database/` (11 篇) | db 模块、SQL 占位符、事务、redis/mongo/kafka/mqtt 访问 | 写 .ms 数据访问时 |
-| `function/` (6 篇) | magic-api 内置函数：聚合/集合/类型转换 | .ms 里用函数时 |
-| `task/` (6 篇) | 定时任务插件配置与注册、**实战坑（enabled 默认 false / log / 验证手法）** | 生成 task .ms 时 |
-| `workflow/` (5 篇) | 工作流定义文件、入口 API、包装页面 | 做审批流时 |
-| `report/` (6 篇) | 报表组件 props 与生成工作流 | 做报表时 |
-| `server-plugin/` / `subscriber-plugin/` | 服务端插件 / 订阅插件开发与推送 | 做插件时 |
-| `repair/` | 补充/修改已有功能的修复流程 | 用户说"改一下/加个字段"时 |
-
-> 1.0.0 实战踩坑（驼峰字段 / body 判空 / groupId 悬空 / 平台基线别删 / 按钮权限 / 主键生成 / 字典类型）见 **`knowledge/gewumind-boot/24-pitfalls-1.0.0.md`**。
+| Directory | Contents |
+|---|---|
+| `gewumind-boot/` (32) | Platform rules: tables, `mb-*` components, SFC, menus, CRUD, bundle publish, reports, dictionaries, icons, system config, frontend build, release/DB baseline |
+| `api/` (14) | magic-api script language: syntax, request/response, modules, database, plugins |
+| `database/` (11) | `db` module, SQL placeholders, transactions, redis/mongo/kafka/mqtt |
+| `function/` (6) | Built-in functions: aggregate, collection, type conversion |
+| `task/` (6) | Scheduled tasks: config, registration, pitfalls |
+| `workflow/` (5) | Workflow definitions, entry APIs, wrapper pages |
+| `report/` (6) | Report component props and generation workflow |
+| `server-plugin/` / `subscriber-plugin/` | Server/subscriber plugin development |
+| `repair/` | Repair flow for existing features |
