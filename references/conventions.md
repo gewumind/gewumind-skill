@@ -32,7 +32,7 @@
 - 组件 `.ms`：meta JSON（`type:1`、`properties.type:1`、`compileJs`/`compileCss`）+ `\r\n` + 32 个 `=` + `\r\n` + Vue SFC。
 - 菜单 `url` = group path + 组件 path；**不要写 `component_id`**（1.0.0 无此列）。
 - 生成：`node scripts/ms-component.mjs --vue ... --group ... --group-path ... --name ... --path ... --out src/magic-api/component`
-- 发布：把 `src/magic-api/component/{中文组}/` 复制到后端 `data/magic-api/component/`，重启后端。
+- 发布：把 `src/magic-api/component/{中文组}/` 复制到后端 `data/zh/magic-api/component/`，重启后端。
 - 详见 `references/component-page.md`。
 
 ## SFC（.vue 动态组件，SFC 表路线）硬规则

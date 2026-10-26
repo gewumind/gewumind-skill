@@ -17,7 +17,7 @@
 ### 1.1 路径 ② 是绝大多数场景的正解
 
 只做业务功能时（写接口、写页面、加报表、审批流），**不要**建议用户去装 IDEA 拉源码——
-`data/magic-api/**` 里的 `.ms` 就是源码，在线编辑器直接改，刷新即生效。
+`data/zh/magic-api/**` 里的 `.ms` 就是源码，在线编辑器直接改，刷新即生效。
 
 优先级：**② > ③ > ①**。只有明确要动 Java 内核时才提 ①。
 
@@ -127,7 +127,7 @@ db[dbKey].select('select 1')    // 动态切换
 
 ## 4. 报表是 Vue 组件，不是 JSON 描述符
 
-⚠️ **极容易搞错**。报表（`data/magic-api/component/报表示例/*.ms`）是**Vue SFC**：
+⚠️ **极容易搞错**。报表（`data/zh/magic-api/component/报表示例/*.ms`）是**Vue SFC**：
 
 ```vue
 <template>

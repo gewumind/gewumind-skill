@@ -3,7 +3,7 @@
 ## 步骤 1：放好后端 .ms 文件
 
 ```
-backend/data/magic-api/api/数据演示/6报表操作/<name>.ms
+backend/data/zh/magic-api/api/数据演示/6报表操作/<name>.ms
 ```
 
 `.ms` 文件内容 = 元数据 JSON 头 + `================================` 分隔 + magic-script 脚本。
@@ -156,7 +156,7 @@ jdbcTemplate.update(
 
 1. **生成后端 .ms**：
    ```
-   backend/data/magic-api/api/数据演示/6报表操作/sales-quarterly.ms
+   backend/data/zh/magic-api/api/数据演示/6报表操作/sales-quarterly.ms
    ```
    ```js
    {

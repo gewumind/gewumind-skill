@@ -100,9 +100,9 @@
 
 ## 对应演示文件位置
 
-- 定义文件：`backend/data/magic-api/workflow/流程示例/*.ms`（4 个）
-- 入口 API：`backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/*_entry.ms`（4 个）
-- 前端 SFC：`backend/data/magic-api/component/工作流示例/*.ms`（4 个 + 流程详情）
+- 定义文件：`backend/data/zh/magic-api/workflow/流程示例/*.ms`（4 个）
+- 入口 API：`backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/*_entry.ms`（4 个）
+- 前端 SFC：`backend/data/zh/magic-api/component/工作流示例/*.ms`（4 个 + 流程详情）
 - 业务表：`biz_leave` / `biz_purchase` / `biz_cross`（合同流程不写业务表）
 - 演示账号：`WorkflowModule.initDemoUsers()` 内置 10 个
 - 菜单：`sys_menu` 表的 `wf-demo-*` 行

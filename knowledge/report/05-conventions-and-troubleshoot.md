@@ -137,7 +137,7 @@ curl -X POST http://localhost:9089/api/data/report-op/profit \
 
 1. dev 在 平台前端 IDE 里写"魔法报表"插件，让用户在前端填"报表名 + params + columns"
 2. 插件生成 `.ms` 和 `.vue` 写到 `<project>/src/magic-api/...`
-3. 用户点"发布"→ `applyBundle` 同步到后端 `data/magic-api/api/...`
+3. 用户点"发布"→ `applyBundle` 同步到后端 `data/zh/magic-api/api/...`
 4. 同时 INSERT `sys_menu` + `sys_role_menu`
 5. 重启后端 → 用户在浏览器侧边栏看到新报表
 

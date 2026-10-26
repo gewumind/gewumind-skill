@@ -91,7 +91,7 @@ MagicScriptException: literal cannot be used alone at Row:1~1
 拼接时若写成 `json + "====" + body`（缺换行），整个文件被当作脚本解析。
 
 **处理**：改完 `.ms` 用二进制校验（见铁律 10），并保持 `src/magic-api/task/` 与
-`backend/data/magic-api/task/` 两份**完全一致**（`diff -r` 必须无输出）。
+`backend/data/zh/magic-api/task/` 两份**完全一致**（`diff -r` 必须无输出）。
 
 ---
 

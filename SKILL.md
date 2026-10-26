@@ -10,6 +10,9 @@ description: Build complete business applications on a running GewuMind Boot (ma
 
 Turn a natural-language requirement into a **publishable business application**: SQL tables + magic-api scripts + Vue dynamic components + menu/dictionary data, published with one `bundle_apply`.
 
+> **Backend workspace (1.2.0+)**: `data/{zh,en}/magic-api`, selected by the language profile (`app.lang`);
+> English deployments read `data/en/magic-api`. Examples below use the Chinese tree; the structure is identical.
+
 ## 1. Prerequisites
 
 1. **Backend URL** (default `http://localhost:9089`). Probe `GET /ai/health` or `GET /api/ai/health` (the prefix varies by version; see `references/en/publish-protocol.md`).

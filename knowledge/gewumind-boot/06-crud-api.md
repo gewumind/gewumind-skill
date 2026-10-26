@@ -1,6 +1,6 @@
 ## CRUD API 模式（magic-script .ms）
 
-后端 API 用 magic-script 编写（.ms 文件），存于 `data/magic-api/api/{group}/{apiName}.ms`。
+后端 API 用 magic-script 编写（.ms 文件），存于 `data/zh/magic-api/api/{group}/{apiName}.ms`。
 
 ### AI 生成新 API 的流程（变更后）
 
@@ -10,7 +10,7 @@
    - `kind` 必填：`api`（REST）/ `function`（函数调用）/ `task`（定时任务）
    - 工具会同时生成 `group.json`（含 groupId/path/type）和 `{name}.ms`（meta JSON + 脚本）
    - 写到项目 `src/magic-api/{kind}/{group}/{name}.ms` 和 `src/magic-api/{kind}/{group}/group.json`
-2. 用户点「发布」时 `applyBundle` 一次性把 .ms 写入后端 `data/magic-api/{kind}/`
+2. 用户点「发布」时 `applyBundle` 一次性把 .ms 写入后端 `data/zh/magic-api/{kind}/`
 
 **为什么不直接调 script/save**：让用户 review meta + script，bundle 内一起发布能保证 .ms 写盘和 SQL 顺序一致。
 

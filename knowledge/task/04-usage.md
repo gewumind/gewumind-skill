@@ -47,4 +47,4 @@ http.connect('http://monitor.example.com/heartbeat')
 
 ## 对应演示文件
 
-- `task/test/test.ms` — 定时任务演示示例（路径: backend/data/magic-api/task/test/）
+- `task/test/test.ms` — 定时任务演示示例（路径: backend/data/zh/magic-api/task/test/）

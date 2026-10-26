@@ -5,7 +5,7 @@
 ### 步骤 1：定义文件
 
 ```
-backend/data/magic-api/workflow/流程示例/<name>.ms
+backend/data/zh/magic-api/workflow/流程示例/<name>.ms
 ```
 
 JSON 头里**直接**包含 `nodes` / `routes` / `forms`（运行时 `WorkflowDefinitionShortcutController.loadFromFile` 解析 JSON 头，不是执行 `getDefinition` 脚本）。完整模板见 `01-definition-file.md`。
@@ -13,7 +13,7 @@ JSON 头里**直接**包含 `nodes` / `routes` / `forms`（运行时 `WorkflowDe
 ### 步骤 2：入口 API
 
 ```
-backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_entry.ms
+backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_entry.ms
 ```
 
 模板见 `02-entry-api.md`。**重点**：
@@ -24,7 +24,7 @@ backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_
 ### 步骤 3：前端 SFC
 
 ```
-backend/data/magic-api/component/工作流示例/<name>.ms
+backend/data/zh/magic-api/component/工作流示例/<name>.ms
 ```
 
 模板见 `03-wrapper-page.md`。基本就是 `<MagicWorkflow :title :entryApi :processId />` 一个组件。

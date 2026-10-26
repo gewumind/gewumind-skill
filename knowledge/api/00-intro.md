@@ -25,7 +25,7 @@ magic-api 是基于 Java 的接口快速开发框架，UI 界面编写接口自�
 ```properties
 server.port=9999
 magic-api.web=/magic/web
-magic-api.resource.location=/data/magic-api
+magic-api.resource.location=/data/${app.lang:zh}/magic-api
 ```
 访问 `http://localhost:9999/magic/web` 即可使用。
 
@@ -38,7 +38,7 @@ magic-api:
   web: /magic/web
   prefix: "/"
   resource:
-    location: file:./data/magic-api
+    location: file:./data/${app.lang:zh}/magic-api
   page:
     page: current
     size: size
@@ -49,7 +49,7 @@ magic-api:
 ```
 
 **关键约定**：
-- 资源文件统一存放在项目根目录的 `data/magic-api/`
+- 资源文件统一存放在项目根目录的 `data/{zh,en}/magic-api/`（由 `app.lang` 选择，中文默认）
 - `.ms` 文件路径 = URL 路径（结合组路径拼接）
 - 内置 `admin` 用户使用 `sa-token` 鉴权（MagicAPIConfig 中已关闭 magic-api 自带登录拦截）
 - 所有前端 API 调用统一经过 Vite 代理（`/api` 前缀自动剥离）
@@ -57,7 +57,7 @@ magic-api:
 ### 文件结构
 
 ```
-data/magic-api/
+data/zh/magic-api/
 ├── api/                    # 业务 REST API（前后端分离使用）
 │   ├── 数据演示/            # 演示用 API（学习参考）
 │   └── 系统管理/            # 真实业务 API

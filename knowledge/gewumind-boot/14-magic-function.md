@@ -127,7 +127,7 @@ return db.selectOne("""
 
 ### 真实例子：复刻 gewumind-boot 已部署的 function
 
-**`data/magic-api/function/配置中心/根据key获取数据值.ms`**：
+**`data/zh/magic-api/function/配置中心/根据key获取数据值.ms`**：
 
 ```json
 {
@@ -188,7 +188,7 @@ var v = getBykey("app.name")   // 注意：去掉了 path 的前导 /
    returnType=String
    description=根据 key + condition 查询配置
    ```
-3. 用户点发布 → applyBundle 推到 `data/magic-api/function/配置中心/`
+3. 用户点发布 → applyBundle 推到 `data/zh/magic-api/function/配置中心/`
 4. 已在其他 .ms 里 `getBykeyAndCondition("app.name", "is_del=0")`
 
 **复刻已部署的 function**：
@@ -218,7 +218,7 @@ var v = getBykey("app.name")   // 注意：去掉了 path 的前导 /
 - `returnType`：返回类型，String / Map<String,Object> 等
 - `description`：给人看的说明
 
-**applyBundle 行为**：function 走跟 api 一样的推送流程，写到 `data/magic-api/function/{group}/{name}.ms`。**不需要额外的 magic-import 或权限设置**。
+**applyBundle 行为**：function 走跟 api 一样的推送流程，写到 `data/zh/magic-api/function/{group}/{name}.ms`。**不需要额外的 magic-import 或权限设置**。
 
 ---
 

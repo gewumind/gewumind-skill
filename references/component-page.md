@@ -80,10 +80,10 @@ node scripts/ms-component.mjs --vue src/pages/device-list.vue \
 #    metaJson 必须含 compileJs / compileCss
 ```
 
-后端写入 `data/magic-api/component/{group}/{name}.ms`（自动建 `group.json`），
+后端写入当前语言工作区 `data/{zh,en}/magic-api/component/{group}/{name}.ms`（中文默认 `data/zh`；自动建 `group.json`），
 `/system/component/runtime/list` 立即可见；菜单仍需单独的 `sys_menu` INSERT（`url = groupPath + path`）。
 
-旧版内核（0.3.0 / 1.0.0）没有 `kind: component`，只能同机复制 + 重启：
+旧版内核（0.3.0 / 1.0.0）没有 `kind: component`，只能同机复制 + 重启（旧版路径为 `<backend>/data/magic-api/`）：
 
 ```bash
 cp -r src/magic-api/component/设备管理 <backend>/data/magic-api/component/
@@ -114,5 +114,5 @@ node scripts/verify-publish.mjs --base http://localhost:9089 \
 
 - **页面空白**：检查 `.ms` 分隔符是否 `\r\n====\r\n`，以及 `compileJs` 是否为空。
 - **菜单点了 404**：菜单 `url` 必须等于 `group path + 组件 path`。
-- **组件列表里没有**：确认文件在 `<backend>/data/magic-api/component/`，并重启过后端。
+- **组件列表里没有**：确认文件在 `<backend>/data/zh/magic-api/component/`，并重启过后端。
 - **组件 id 冲突**：`groupId` 必须等于 `group.json` 的 `id`；`id` 用 `nameToUuid` 生成，重复生成会覆盖。

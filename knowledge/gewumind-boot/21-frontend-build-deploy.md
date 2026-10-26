@@ -8,7 +8,7 @@
 |---|---|---|
 | `frontend` | 前端**源码**（Vue 3 + Vite） | 否（不在版本控制里） |
 | `gewumind-boot` | 发布工程：fat jar + 前端**产物** | 是 |
-| `backend` | 后端 Java 源码 + `data/magic-api` 低代码容器 | 否 |
+| `backend` | 后端 Java 源码 + `data/{zh,en}/magic-api` 低代码容器 | 否 |
 
 `gewumind-boot` 把 `src/main/resources/static/` 提交进仓库，保证 clone 下来直接能跑；改前端后必须**重新同步产物**回去。
 
@@ -93,7 +93,7 @@ unzip -l target/gewumind-boot-app.jar | grep 'static/index.html'
 
 ## 5. `.ms` 低代码组件不走前端构建
 
-`data/magic-api/component/**.ms` 由后端在运行时读盘编译，前端只负责渲染。
+`data/zh/magic-api/component/**.ms` 由后端在运行时读盘编译，前端只负责渲染。
 改 `.ms` 后：
 
 - 需要把新编译产物（`compileJs` / `compileCss`）写回文件头部
@@ -106,6 +106,6 @@ unzip -l target/gewumind-boot-app.jar | grep 'static/index.html'
 bash scripts/build-dist.sh          # 需先 stop；产出 dist/*.tar.gz + *.zip
 ```
 
-布局：`bin/`（jar + start/stop，`.sh` 与 `.bat` 双份）、`config/`、`data/magic-api/`、
+布局：`bin/`（jar + start/stop，`.sh` 与 `.bat` 双份）、`config/`、`data/{zh,en}/magic-api/`、
 `db/`、`docs/`、`DEPLOY.md`。启动脚本会自动识别「发行包布局（jar 在 bin/）」
 与「源码布局（jar 在 target/）」两种目录结构。

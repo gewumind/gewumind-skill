@@ -1,6 +1,6 @@
 ## Subscriber .ms 文件结构
 
-每个 subscriber 脚本是一个文件，**JSON 元数据 + 分隔符 `================================` + magic-script 源码**。存放在 `data/magic-api/subscriber/<group>/<name>.ms`（如 `data/magic-api/subscriber/订阅/Redis订阅示例.ms`）。
+每个 subscriber 脚本是一个文件，**JSON 元数据 + 分隔符 `================================` + magic-script 源码**。存放在 `data/zh/magic-api/subscriber/<group>/<name>.ms`（如 `data/zh/magic-api/subscriber/订阅/Redis订阅示例.ms`）。
 
 ### 元数据（JSON 头）
 

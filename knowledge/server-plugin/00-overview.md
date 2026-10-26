@@ -5,9 +5,9 @@
 
 | 协议 | 默认端口 | 文件路径 | 客户端连接示例 |
 |------|---------|---------|---------------|
-| `sse` | 跟随 Spring Boot（9089） | `data/magic-api/server/服务/sse/<name>.ms` | `new EventSource('/sse/<target>')` |
-| `ws` | 跟随 Spring Boot（9089） | `data/magic-api/server/服务/ws/<name>.ms` | `new WebSocket('ws://host:9089/ws/<target>')` |
-| `tcp` | 文件 `target` 字段（字符串数字） | `data/magic-api/server/服务/tcp/<name>.ms` | `nc host <port>` |
+| `sse` | 跟随 Spring Boot（9089） | `data/zh/magic-api/server/服务/sse/<name>.ms` | `new EventSource('/sse/<target>')` |
+| `ws` | 跟随 Spring Boot（9089） | `data/zh/magic-api/server/服务/ws/<name>.ms` | `new WebSocket('ws://host:9089/ws/<target>')` |
+| `tcp` | 文件 `target` 字段（字符串数字） | `data/zh/magic-api/server/服务/tcp/<name>.ms` | `nc host <port>` |
 
 ### 启用条件
 

@@ -3,7 +3,7 @@
 ## 文件位置
 
 ```
-backend/data/magic-api/component/工作流示例/<name>.ms
+backend/data/zh/magic-api/component/工作流示例/<name>.ms
 ```
 
 文件名建议中文（与定义文件同名）。`MagicWorkflow.vue` 通过 `magic-import.js` 注册的异步组件加载；菜单 url = `/workflow-demo/<x>` 自动映射到本目录里 name=`<x>` 的 SFC。
@@ -101,8 +101,8 @@ import MagicWorkflow from '@/components/workflow/MagicWorkflow.vue'
 
 ## 对应演示文件
 
-- `backend/data/magic-api/component/工作流示例/请假审批.ms` — 请假审批包装
-- `backend/data/magic-api/component/工作流示例/采购审批.ms` — 采购审批包装
-- `backend/data/magic-api/component/工作流示例/合同审批.ms` — 合同审批包装
-- `backend/data/magic-api/component/工作流示例/跨部门申请.ms` — 跨部门申请包装
-- `backend/data/magic-api/component/工作流示例/流程详情.ms` — 流程详情（只读展示）
+- `backend/data/zh/magic-api/component/工作流示例/请假审批.ms` — 请假审批包装
+- `backend/data/zh/magic-api/component/工作流示例/采购审批.ms` — 采购审批包装
+- `backend/data/zh/magic-api/component/工作流示例/合同审批.ms` — 合同审批包装
+- `backend/data/zh/magic-api/component/工作流示例/跨部门申请.ms` — 跨部门申请包装
+- `backend/data/zh/magic-api/component/工作流示例/流程详情.ms` — 流程详情（只读展示）

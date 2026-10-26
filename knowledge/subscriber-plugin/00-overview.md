@@ -5,9 +5,9 @@
 
 | 协议 | 文件路径 | target 含义 | 配置文件项 |
 |------|---------|-----------|----------|
-| `redis` | `data/magic-api/subscriber/订阅/<name>.ms` | redis 频道名（如 `demo:news`） | `redis.enabled` + `redis.config` (JSON) |
-| `kafka` | `data/magic-api/subscriber/订阅/<name>.ms` | kafka topic 名（如 `demo-topic`） | `kafka.enabled` + `kafka.config` (JSON) |
-| `mqtt` | `data/magic-api/subscriber/订阅/<name>.ms` | mqtt topic（如 `demo/topic`） | `mqtt.enabled` + `mqtt.config` (JSON) |
+| `redis` | `data/zh/magic-api/subscriber/订阅/<name>.ms` | redis 频道名（如 `demo:news`） | `redis.enabled` + `redis.config` (JSON) |
+| `kafka` | `data/zh/magic-api/subscriber/订阅/<name>.ms` | kafka topic 名（如 `demo-topic`） | `kafka.enabled` + `kafka.config` (JSON) |
+| `mqtt` | `data/zh/magic-api/subscriber/订阅/<name>.ms` | mqtt topic（如 `demo/topic`） | `mqtt.enabled` + `mqtt.config` (JSON) |
 
 ### 启用条件
 

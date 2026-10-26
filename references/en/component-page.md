@@ -38,9 +38,10 @@ node scripts/ms-component.mjs --vue ... --group Device --group-path /device \
 # put the printed ms[0] into bundle_apply
 ```
 
-The backend writes `data/magic-api/component/{group}/{name}.ms` and creates `group.json` as needed. `/system/component/runtime/list` reflects it immediately.
+The backend writes into the active language workspace, `data/{zh,en}/magic-api/component/{group}/{name}.ms` (Chinese default `data/zh`), and creates `group.json` as needed. `/system/component/runtime/list` reflects it immediately.
 
-Older kernels (0.3.0 / 1.0.0) have no `kind: component`; copy the directory and restart:
+Older kernels (0.3.0 / 1.0.0) have no `kind: component`; copy the directory and restart
+(older versions used `<backend>/data/magic-api/`):
 
 ```bash
 cp -r src/magic-api/component/Device <backend>/data/magic-api/component/

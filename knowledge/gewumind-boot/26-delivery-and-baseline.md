@@ -19,7 +19,7 @@ dist/gewumind-boot-app-<版本>/
 ├── libs/gewumind-boot-app.jar
 ├── bin/    start.sh / stop.sh / gen-ssl-cert.sh ...
 ├── config/ application.yml + application-{dev,online,docker,demo}.yml
-├── data/magic-api/   ← 接口、组件、任务脚本（备份重点）
+├── data/zh/magic-api/   ← 接口、组件、任务脚本（备份重点）
 ├── db/init/          ← 数据库基线 SQL
 └── docs/ DEPLOY.md
 dist/gewumind-boot-app-<版本>.tar.gz / .zip
@@ -103,5 +103,5 @@ python3 scripts/gen-business-baseline.py     # 从运行库导出生成 02 基�
 - [ ] `db/init/` 下有 `01-baseline.sql` 与 `02-<项目>-baseline.sql`
 - [ ] 两份基线在**全新库**上导入无报错
 - [ ] 新库导入后业务表齐全、数据与现网有效数据一致
-- [ ] `dist/` 里包含 `data/magic-api`（接口/组件/任务）与 `db/init`
+- [ ] `dist/` 里包含 `data/{zh,en}/magic-api`（接口/组件/任务）与 `db/init`
 - [ ] 附件与 `upload/` 运行期目录**不**进包

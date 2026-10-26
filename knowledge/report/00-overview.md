@@ -15,7 +15,7 @@
                      │  {p1, p2, p3}
                      ▼
 ┌─ 后端 ───────────────────────────────────────────┐
-│ data/magic-api/api/数据演示/6报表操作/<name>.ms │
+│ data/zh/magic-api/api/数据演示/6报表操作/<name>.ms │
 │   - 元数据 JSON 头 (path, method, groupId)       │
 │   - ============                                  │
 │   - magic-script 脚本：                          │

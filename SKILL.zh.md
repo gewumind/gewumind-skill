@@ -5,9 +5,11 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 
 # GewuMind Boot 开发 Skill
 
-> 版本 1.1.0（`VERSION`）——与 `gewumind-boot` 保持同一版本号，两者同 tag 发布。
+> 版本 1.2.0（`VERSION`）——与 `gewumind-boot` 保持同一版本号，两者同 tag 发布。
 
 把一个自然语言需求变成**可发布的业务应用**：SQL 建表 + magic-api 脚本 + Vue 动态组件 + 菜单/字典数据，最后通过 `bundle_apply` 一次推送到运行中的 GewuMind Boot 后端。
+
+> **后端工作区（1.2.0+）**：`data/{zh,en}/magic-api`，由语言 profile（`app.lang`）选择；英文部署读 `data/en/magic-api`。下文示例默认中文树，结构完全相同。
 
 ## 前提：确认环境
 

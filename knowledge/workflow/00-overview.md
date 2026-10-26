@@ -8,18 +8,18 @@
 
 ```
 ┌─ 前端（component 目录）─────────────────────────────────────────┐
-│ data/magic-api/component/工作流示例/<name>.ms                   │
+│ data/zh/magic-api/component/工作流示例/<name>.ms                   │
 │   └─ <MagicWorkflow :title :entryApi :definitionApi ... />      │
 └────────────────────────────────────────────────────────────────┘
                       ▲ POST { action, userId, ... }
                       │
 ┌─ 后端 magic-api 脚本层 ─────────────────────────────────────────┐
-│ data/magic-api/workflow/流程示例/<name>.ms（流程定义）            │
+│ data/zh/magic-api/workflow/流程示例/<name>.ms（流程定义）            │
 │   - JSON 头直接包含：nodes / routes / forms / description       │
 │   - ============================================================  │
 │   - 脚本：if (action == 'getDefinition') { return { ... } }       │
 │                                                                  │
-│ data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_entry.ms│
+│ data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_entry.ms│
 │   - action dispatch：start/approve/reject/deny/resubmit/         │
 │     myTasks/myStarted/detail/terminate                          │
 └────────────────────────────────────────────────────────────────┘
@@ -73,6 +73,6 @@ LLM 在以下场景加载：
 
 ## 对应演示文件位置
 
-- **定义文件**：`backend/data/magic-api/workflow/流程示例/*.ms`（4 个）
-- **入口 API**：`backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/*_entry.ms`（4 个）
-- **前端 SFC**：`backend/data/magic-api/component/工作流示例/*.ms`（4 个 + 流程详情）
+- **定义文件**：`backend/data/zh/magic-api/workflow/流程示例/*.ms`（4 个）
+- **入口 API**：`backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/*_entry.ms`（4 个）
+- **前端 SFC**：`backend/data/zh/magic-api/component/工作流示例/*.ms`（4 个 + 流程详情）

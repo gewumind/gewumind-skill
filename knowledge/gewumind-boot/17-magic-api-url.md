@@ -29,7 +29,7 @@
 每个目录都有自己的 `group.json`，**包括顶级**：
 
 ```
-data/magic-api/api/
+data/zh/magic-api/api/
 ├── 设备管理/                          ← 顶级 group.json
 │   ├── group.json                    ← path: /device, name: "设备管理"
 │   ├── 设备列表/                      ← 子级 group.json

@@ -2,7 +2,7 @@
 
 > An agent-agnostic skill that turns requirements into a running low-code backend.
 >
-> **Version 1.1.0** — released with [gewumind-boot](https://github.com/gewumind/gewumind-boot) under the same version and tag.
+> **Version 1.2.0** — released with [gewumind-boot](https://github.com/gewumind/gewumind-boot) under the same version and tag.
 
 `gewumind-skill` is not a model or an IDE. It is a set of **engineering rules + knowledge base + publish protocol** for AI agents.
 

@@ -1,6 +1,6 @@
 ## Server .ms 文件结构
 
-每个 server 脚本是一个文件，**JSON 元数据 + 分隔符 + magic-script 源码**。存放在 `data/magic-api/server/<group>/<protocol>/<name>.ms`（如 `data/magic-api/server/服务/sse/通知推送示例.ms`）。
+每个 server 脚本是一个文件，**JSON 元数据 + 分隔符 + magic-script 源码**。存放在 `data/zh/magic-api/server/<group>/<protocol>/<name>.ms`（如 `data/zh/magic-api/server/服务/sse/通知推送示例.ms`）。
 
 ### ⚠ 分隔符必须带首尾 `\r\n`（铁律）
 
@@ -32,7 +32,7 @@ Java 侧：`content.indexOf(SEPARATOR)`，判断 `sep > -1` 再切分。
 
 > **后端自己也可能写错（1.0.0 实测）**：`bundle_apply` 落盘时生成的是 `\n================================\r\n`（分隔符前只有 LF），重新加载会被当成「没有分隔符」。发布后要二进制校验 `}\r\n====\r\n`；不对就重写该文件（或调 `POST /api/ai/magic-api/repair`）。
 >
-> 另一个实测问题：`bundle_apply` 可能把文件写到 `<project>/file:./data/magic-api/...`（多一层字面量 `file:`）。发布后检查并移动到 `<project>/data/magic-api/...`，否则接口 404。
+> 另一个实测问题（1.0.0 / 1.1.x）：`bundle_apply` 可能把文件写到 `<project>/file:./data/magic-api/...`（多一层字面量 `file:`）。发布后检查并移动到实际工作区（1.2.0+ 为 `<project>/data/{zh,en}/magic-api/...`），否则接口 404。
 
 ### 元数据（JSON 头）
 

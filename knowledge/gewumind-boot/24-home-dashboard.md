@@ -1,12 +1,12 @@
 # 首页 / dashboard.ms
 
-> **首页内容的唯一入口**：`data/magic-api/component/dashboard/dashboard.ms`。
+> **首页内容的唯一入口**：`data/zh/magic-api/component/dashboard/dashboard.ms`。
 > 登录后的 `/home` 路由渲染的就是这个组件；改首页 = 改这个文件。
 
 ## 位置与标识
 
 ```text
-data/magic-api/component/
+data/zh/magic-api/component/
 └── dashboard/
     ├── group.json          # id: dashboard-root-group, path: /dashboard
     └── dashboard.ms        # name: dashboard, path: /dashboard, type: 1
@@ -36,11 +36,11 @@ SFC 里通常包含：
 
 ### 方式一：直接改 `.ms` 里的 SFC（推荐）
 
-1. 编辑 `data/magic-api/component/dashboard/dashboard.ms` 分隔符之后的 Vue 源码
+1. 编辑 `data/zh/magic-api/component/dashboard/dashboard.ms` 分隔符之后的 Vue 源码
 2. 重新编译 `compileJs` / `compileCss`（保留 meta）：
 
 ```bash
-node scripts/ms-component.mjs --update <backend>/data/magic-api/component/dashboard/dashboard.ms
+node scripts/ms-component.mjs --update <backend>/data/zh/magic-api/component/dashboard/dashboard.ms
 ```
 
 3. 重启后端，刷新 `/#/home`
@@ -50,7 +50,7 @@ node scripts/ms-component.mjs --update <backend>/data/magic-api/component/dashbo
 ```bash
 # 改 src/pages/dashboard.vue 后
 node scripts/ms-component.mjs \
-  --update <backend>/data/magic-api/component/dashboard/dashboard.ms \
+  --update <backend>/data/zh/magic-api/component/dashboard/dashboard.ms \
   --vue src/pages/dashboard.vue
 ```
 
@@ -61,7 +61,7 @@ node scripts/ms-component.mjs \
 同机部署：
 
 ```bash
-cp -r data/magic-api/component/dashboard <backend>/data/magic-api/component/
+cp -r data/zh/magic-api/component/dashboard <backend>/data/zh/magic-api/component/
 # 重启后端
 ```
 
@@ -82,6 +82,6 @@ cp -r data/magic-api/component/dashboard <backend>/data/magic-api/component/
 ## 常见问题
 
 - **首页空白**：`compileJs` 为空 / 分隔符不对 / 组件名被改掉
-- **改了没生效**：没有重启后端，或改的是源码仓库而不是后端 `data/magic-api/component/`
+- **改了没生效**：没有重启后端，或改的是源码仓库而不是后端 `data/zh/magic-api/component/`
 - **图表不显示**：`echarts` 初始化容器尺寸为 0，检查 `waitForSize` 或容器样式
 - **接口 401/403**：首页的 `$common` 请求需要登录态；确认已登录且权限足够

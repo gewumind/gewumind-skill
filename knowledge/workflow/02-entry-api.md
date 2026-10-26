@@ -3,7 +3,7 @@
 ## 文件位置
 
 ```
-backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_entry.ms
+backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/<name>_entry.ms
 ```
 
 文件名带 `_entry` 后缀（如 `请假审批.ms` 在 component/，但入口是 `leave_entry.ms`）。
@@ -327,7 +327,7 @@ if (action == 'resubmit') {
 
 ## 对应演示文件
 
-- `backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/leave_entry.ms` — 请假审批入口
-- `backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/purchase_entry.ms` — 采购审批入口
-- `backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/contract_entry.ms` — 合同审批入口
-- `backend/data/magic-api/api/脚本演示/3插件相关/3.7工作流演示/cross_entry.ms` — 跨部门申请入口（**含跨部门填写 + 逐层驳回**）
+- `backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/leave_entry.ms` — 请假审批入口
+- `backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/purchase_entry.ms` — 采购审批入口
+- `backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/contract_entry.ms` — 合同审批入口
+- `backend/data/zh/magic-api/api/脚本演示/3插件相关/3.7工作流演示/cross_entry.ms` — 跨部门申请入口（**含跨部门填写 + 逐层驳回**）

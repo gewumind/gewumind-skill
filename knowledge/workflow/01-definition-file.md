@@ -3,7 +3,7 @@
 ## 文件位置
 
 ```
-backend/data/magic-api/workflow/流程示例/<name>.ms
+backend/data/zh/magic-api/workflow/流程示例/<name>.ms
 ```
 
 文件名建议用中文（如 `请假审批.ms`），与 SFC 组件 + 菜单名对应。
@@ -336,7 +336,7 @@ return { success: false, message: 'unknown action: ' + action }
 
 ## 对应演示文件
 
-- `backend/data/magic-api/workflow/流程示例/请假审批.ms` — 请假审批（条件分支 + 抄送）
-- `backend/data/magic-api/workflow/流程示例/采购审批.ms` — 采购审批（金额分支）
-- `backend/data/magic-api/workflow/流程示例/合同审批.ms` — 合同审批（多角色链式）
-- `backend/data/magic-api/workflow/流程示例/跨部门申请.ms` — 跨部门申请（跨部门填写 + 逐层驳回）
+- `backend/data/zh/magic-api/workflow/流程示例/请假审批.ms` — 请假审批（条件分支 + 抄送）
+- `backend/data/zh/magic-api/workflow/流程示例/采购审批.ms` — 采购审批（金额分支）
+- `backend/data/zh/magic-api/workflow/流程示例/合同审批.ms` — 合同审批（多角色链式）
+- `backend/data/zh/magic-api/workflow/流程示例/跨部门申请.ms` — 跨部门申请（跨部门填写 + 逐层驳回）

@@ -45,7 +45,7 @@ log.info("已清理 30 天前的 oper_log")
 return "done"
 ```
 
-**存储位置**：`data/magic-api/task/{group}/{name}.ms` + `group.json`（跟 api/function 一样）
+**存储位置**：`data/zh/magic-api/task/{group}/{name}.ms` + `group.json`（跟 api/function 一样）
 
 ---
 
@@ -99,7 +99,7 @@ return "done"
               log.info("清理 oper_log " + n + " 条")
               return "cleaned: " + n
    ```
-3. 用户点发布 → applyBundle 推到 `data/magic-api/task/定时任务/清理操作日志.ms`
+3. 用户点发布 → applyBundle 推到 `data/zh/magic-api/task/定时任务/清理操作日志.ms`
 
 **测试方法**：先设 cron 为 `0/30 * * * ? ?`（每 30 秒）观察一次，确认 log 输出正确，再改回正常 cron
 
@@ -133,7 +133,7 @@ script=
 
 **暂停**（不让它继续跑）：把 .ms 文件的 `enabled: false`
 **启用**：把 `enabled: true`
-**删除**：直接 `rm data/magic-api/task/定时任务/xxx.ms` + 对应 group.json 删除组
+**删除**：直接 `rm data/zh/magic-api/task/定时任务/xxx.ms` + 对应 group.json 删除组
 
 AI 工具目前**只支持新建和复刻**，暂停/启用/删除需要用户手动编辑文件。
 
@@ -163,7 +163,7 @@ AI 工具目前**只支持新建和复刻**，暂停/启用/删除需要用户�
 - `path`：任务标识（任意字符串，不会被调用）
 - `description`：给人看的说明
 
-**applyBundle 行为**：task 跟 api/function 一样走 SQL + 文件 bundle，写到 `data/magic-api/task/{group}/{name}.ms`。**没有 sql 字段**（task 不写 DB），只写 .ms + group.json。
+**applyBundle 行为**：task 跟 api/function 一样走 SQL + 文件 bundle，写到 `data/zh/magic-api/task/{group}/{name}.ms`。**没有 sql 字段**（task 不写 DB），只写 .ms + group.json。
 
 ---
 

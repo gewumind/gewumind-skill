@@ -105,8 +105,8 @@ optionsApi: {
 ### 文件位置与 groupId
 
 ```
-backend/data/magic-api/api/数据演示/6报表操作/<name>.ms
-backend/data/magic-api/api/数据演示/6报表操作/group.json
+backend/data/zh/magic-api/api/数据演示/6报表操作/<name>.ms
+backend/data/zh/magic-api/api/数据演示/6报表操作/group.json
 ```
 
 `group.json` 已存在（`id: 'rpt-op-group-001'`, `path: '/report-op'`）。新 `.ms` 直接放同目录下。
