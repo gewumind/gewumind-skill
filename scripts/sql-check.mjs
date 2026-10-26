@@ -4,7 +4,7 @@
  *
  * 用法：
  *   node scripts/sql-check.mjs <file-or-dir> [...]
- *   node scripts/sql-check.mjs            # 默认扫描 ./src/magic-api 与 ./data/magic-api
+ *   node scripts/sql-check.mjs            # 默认扫描 src/magic-api、data/zh/magic-api、data/en/magic-api
  *
  * 规则：
  *   - ✅ 允许 `#{expr}`（参数化）与 `?{cond, ...}`（条件拼接）
@@ -57,10 +57,10 @@ function checkFile(file) {
 const args = process.argv.slice(2);
 let targets = args;
 if (!targets.length) {
-  targets = ['src/magic-api', 'data/magic-api'].filter(existsSync);
+  targets = ['src/magic-api', 'data/magic-api', 'data/zh/magic-api', 'data/en/magic-api'].filter(existsSync);
 }
 if (!targets.length) {
-  console.error('sql-check: 没有找到要扫描的目录（默认 src/magic-api、data/magic-api）');
+  console.error('sql-check: 没有找到要扫描的目录（默认 src/magic-api、data/zh|en/magic-api）');
   process.exit(2);
 }
 

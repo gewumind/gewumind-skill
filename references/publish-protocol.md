@@ -92,7 +92,7 @@ Content-Type: application/json
   - `method`：默认 POST；`path`：默认 `/{name}`，建议显式传英文 kebab（`/list`）
   - `permission`：权限码；`cron`：task 必填；`metaJson`：可选，完整 meta JSON 字符串（保留 parameters/returnType/options 等高级字段，后端会覆盖 id/groupId/name/path）
   - `groupPath`：仅顶级单段时生效（英文 URL 段，如 `device`）；嵌套层由后端查表推断，一般不用管
-  - `component`：`metaJson` 必须含 `compileJs`/`compileCss`（用 `ms-component.mjs --publish` 生成），`path` 相对 `groupPath`；后端写 `data/magic-api/component/{group}/{name}.ms`
+  - `component`：`metaJson` 必须含 `compileJs`/`compileCss`（用 `ms-component.mjs --publish` 生成），`path` 相对 `groupPath`；后端写 `data/magic-api/component/{group}/{name}.ms`（1.2.0+ 为 `data/{zh,en}/magic-api/component/...`，以 `magic-api.resource.location` 为准）
 - `migrate[]`：已有表的结构变更（ALTER/DROP），与 sql 分开走
 - `selectedFiles`：非 null 时只发布列表内的 SQL（name 或 basename 匹配）——部分发布
 
@@ -192,7 +192,7 @@ scripts/rollback.sh --base http://localhost:9089 --version <backupVersion> \
 <project>/file:./data/magic-api/api/设备管理/列表.ms
 ```
 
-即多出一层字面量 `file:` 目录。**0.3.1+ 已修复**（`getMagicApiDataDir` 会剥掉 `file:` 前缀）。旧版（1.0.0）发布后仍须检查：若存在 `<project>/file:./data/...`，把整个目录移到 `<project>/data/magic-api/`，再重启（或调 `POST /api/ai/magic-api/repair`）。
+即多出一层字面量 `file:` 目录。**0.3.1+ 已修复**（`getMagicApiDataDir` 会剥掉 `file:` 前缀）。旧版（1.0.0）发布后仍须检查：若存在 `<project>/file:./data/...`，把整个目录移到配置的工作区目录（1.2.0+ 为 `<project>/data/{zh,en}/magic-api/`，旧版为 `<project>/data/magic-api/`），再重启（或调 `POST /api/ai/magic-api/repair`）。
 
 ### 2. `.ms` 分隔符必须 CRLF 包围（后端自己会写错）
 标准格式：
