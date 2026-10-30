@@ -16,7 +16,7 @@
  * 只读：不会修改任何文件。
  */
 import { readFileSync, statSync, readdirSync, existsSync } from 'node:fs';
-import { join, extname, resolve } from 'node:path';
+import { join, extname, resolve, basename } from 'node:path';
 
 const SEP = '='.repeat(32);
 const SQL_KW = /\b(SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|LIKE|AND|OR|SET|VALUES|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT|OFFSET|IN\s*\()/i;
@@ -27,6 +27,9 @@ const INTERP = /\$\{[^}]+\}/;                // ${var}
 function walk(p, out = []) {
   const st = statSync(p);
   if (st.isDirectory()) {
+    // 1.2.0 问题#10：component 目录是 Vue/JS SFC 编译产物（含大量前端字符串拼接），
+    // 不是 SQL 脚本，排除以避免把模板拼接误报为"不安全 SQL"。
+    if (basename(p) === 'component') return out;
     for (const f of readdirSync(p)) walk(join(p, f), out);
   } else if (extname(p) === '.ms') {
     out.push(p);
