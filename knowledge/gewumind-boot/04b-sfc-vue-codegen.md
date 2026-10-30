@@ -6,7 +6,7 @@
 >
 > 📖 **后端 magic-script API 设计**（CRUD 路由、参数规范、组织权限过滤）见 **`06-crud-api.md`**。
 >
-> 🚨 **关键警告**：所有 .vue 模板必须以「🔒 通用 CRUD 模板」为准（照抄 `frontend/src/views/system/dict/dict-list.vue`）。警告用 `<mb-list>` / `<mb-form>` / `fetch()` / `/api/` 前缀 / `.open()` / `@confirm-click` 都会被 `lintVue` 工具检测出来，必须修复。
+> 🚨 **关键警告**：所有 `.vue` 模板以发行包内置页为**唯一基准**（`data/zh/magic-api/component/`、`data/en/magic-api/component/`，如 `系统设置/user/用户管理.ms`、`系统设置/role/角色管理.ms`）。旧文档里的 `_b/_w`、`type:`、`:columns/:where/:page`、`date-range` 展开 Start/End 等写法已与内核 0.3.3 不符，勿再照抄。警告用 `<mb-list>` / `<mb-form>` / `fetch()` / `/api/` 前缀 / `.open()` / `@confirm-click` 都会被 `lintVue` 工具检测出来，必须修复。
 
 ---
 
@@ -71,25 +71,16 @@ SFC 编译时这些对象会自动注入到 `<script setup>` 顶层作用域，*
 
 ```vue
 <div class="mb-table">
-  <mb-table
-    ref="table"
-    :columns="tableOptions.cols"
-    :data="tableOptions.data"
-    :where="tableOptions.where"
-    :page="true"
-    v-model:checked-row-keys="ids"
-    :size="$global.uiSize.value"
-  />
+  <mb-table ref="table" v-bind="tableOptions" v-model:checked-row-keys="ids" />
 </div>
 ```
 
-| prop | 类型 | 说明 |
+> **发行包 1.2.0 / 内核 0.3.3 基准**：`mb-table` 一律 `v-bind="tableOptions"` 整体绑定（`tableOptions` 内含 `id/url/where/cols/page/selection` 等），**不要**逐属性 `:columns/:where/:page`。
+
+| 绑定 | 类型 | 说明 |
 |---|---|---|
 | `ref` | string | 用于 `table.reload()` / `table.exportExcel()` / `table.search()` |
-| `:columns` | Array | 列定义，详见下方 `cols` schema |
-| `:data` | Array | 直接数据（不走 API） |
-| `:where` | Object | 搜索条件对象，传给后端 `{...where, page, size}` |
-| `:page` | boolean | 是否分页（自动管 current/size） |
+| `v-bind="tableOptions"` | Object | 整体绑定（`id/url/where/cols/page/selection/...`），`url` 触发内置请求 |
 | `v-model:checked-row-keys` | Array | 多选选中的 key |
 
 **方法（通过 ref 调用）**：
@@ -127,11 +118,15 @@ const openUpdate = (row) => { currentRow.value = { ...row }; dialogTitle.value =
 ```vue
 <div class="mb-search">
   <mb-search :where="tableOptions.where" @search="reloadTable">
+    <!-- 导出等「辅助」按钮放 #buttons -->
     <template #buttons>
-      <n-button :size="$global.uiSize.value" v-permission="'device:save'" type="primary" @click="openCreate">新增</n-button>
       <n-button :size="$global.uiSize.value" v-permission="'device:export'" @click="table.exportExcel({ fileName: '设备' })">导出</n-button>
     </template>
   </mb-search>
+</div>
+<!-- 新增等「主操作」放独立 mb-toolbar -->
+<div class="mb-toolbar">
+  <n-button :size="$global.uiSize.value" v-permission="'device:save'" type="primary" @click="openCreate">新增</n-button>
 </div>
 ```
 
@@ -314,9 +309,6 @@ import _ from "lodash-es"
     <div class="mb-search">
       <mb-search :where="tableOptions.where" @search="reloadTable">
         <template #buttons>
-          <n-button v-permission="'dict:save'" type="primary" :size="$global.uiSize.value" @click="openCreate">
-            <mb-icon icon="Plus" />新增
-          </n-button>
           <n-button v-permission="'dict:export'" :size="$global.uiSize.value" @click="table.exportExcel({ fileName: '字典' })">
             <mb-icon icon="DownloadOutline" />导出
           </n-button>
@@ -324,15 +316,14 @@ import _ from "lodash-es"
       </mb-search>
     </div>
 
+    <div class="mb-toolbar">
+      <n-button v-permission="'dict:save'" type="primary" :size="$global.uiSize.value" @click="openCreate">
+        <mb-icon icon="Plus" />新增
+      </n-button>
+    </div>
+
     <div class="mb-table">
-      <mb-table
-        ref="table"
-        :columns="tableOptions.cols"
-        :where="tableOptions.where"
-        :page="true"
-        v-model:checked-row-keys="ids"
-        :size="$global.uiSize.value"
-      />
+      <mb-table ref="table" v-bind="tableOptions" v-model:checked-row-keys="ids" />
     </div>
 
     <mb-modal ref="formDialog" :title="dialogTitle" @confirm="formRef.save($event)" width="670px">
@@ -383,7 +374,7 @@ const handleDelete = (row) => $common.handleDelete({ url: '/dict/delete', id: ro
 ### 关键要点（必须严格照抄）
 
 1. **外层 `<div class="mb-list">`**（不是 `<mb-list>`）
-2. **`<mb-search>` + `<template #buttons>`** 放工具栏按钮（不是 `n-space`）
+2. **导出等辅助按钮放 `<mb-search>` 的 `<template #buttons>`；新增等主操作放独立 `<div class="mb-toolbar">`**（不要全塞 `#buttons`，也不是 `n-space`）
 3. **`<mb-modal>` 接收 `@confirm="formRef.save($event)"`**：payload 用 `save($event)` 而不是 `save`
 4. **`formDialog.value.show()`**：用 `.show()` 不是 `.open()`
 5. **API 路径不加 `/api` 前缀**：`url: '/system/dict/list'`
@@ -412,37 +403,37 @@ const handleDelete = (row) => $common.handleDelete({ url: '/dict/delete', id: ro
 
 ## 📊 `tableOptions.where` 搜索条件 schema
 
-`tableOptions.where` 是搜索条件对象，结构如下：
+`tableOptions.where` 是搜索条件对象。**发行包 1.2.0 基准用 `component:` 指定控件**（不是 `type:`），字典/URL 下拉用 `props`。
 
 ```js
 const tableOptions = reactive({
   where: {
     // 普通输入框
-    sn: { type: 'input', label: 'SN', value: '', placeholder: '请输入SN', like: true },
+    sn: { component: 'input', label: 'SN', props: { placeholder: '请输入SN' } },
 
-    // 字典下拉
+    // 字典下拉（props.type = 字典编码）
     status: {
-      type: 'select', label: '状态', value: null,
-      props: { type: 'device_status' }  // 从 sys_dict 加载选项
+      component: 'select', label: '状态',
+      props: { type: 'device_status' }
+    },
+
+    // URL 下拉
+    roleId: {
+      component: 'select', label: '角色',
+      props: { url: '/system/role/all', multiple: true }
     },
 
     // 树形下拉
     officeId: {
-      type: 'tree-select', label: '组织', value: null,
+      component: 'tree-select', label: '组织',
       props: { url: '/system/office/tree', keyField: 'id', labelField: 'name' }
     },
 
-    // 日期范围
+    // 日期时间区间：一个控件，值是「逗号串」
     createDate: {
-      type: 'date-range', label: '创建日期', value: null,
-      props: { format: 'yyyy-MM-dd' }
+      component: 'date', label: '创建时间',
+      props: { type: 'datetimerange' }
     },
-
-    // 数字范围
-    price: { type: 'number-range', label: '价格', value: null },
-
-    // 开关
-    enabled: { type: 'switch', label: '启用', value: false },
   },
   cols: [ ... ]
 })
@@ -450,23 +441,27 @@ const tableOptions = reactive({
 
 **字段类型**：
 
-| `type` | 渲染组件 | value 类型 | 说明 |
+| `component` | 渲染组件 | value 类型 | 说明 |
 |---|---|---|---|
-| `input` | `<n-input>` | string | 加 `like: true` 自动 LIKE 查询 |
-| `select` | `<mb-select>` | string/number | 加 `props: { type: 'xxx' }` 从字典加载 |
+| `input` | `<n-input>` | string | `props.pair:true` 成对区间 |
+| `select` | `<mb-select>` | string/number | `props.type` 从字典加载；`props.url` 从接口加载 |
 | `tree-select` | `<mb-tree-select>` | string | 选节点 id |
-| `date-range` | `<mb-date type="daterange">` | `[start, end]` | 自动展开成 `createDateStart`/`createDateEnd` |
-| `number-range` | `<n-input-number>` 范围 | `[min, max]` | 同上 |
-| `switch` | `<mb-switch>` | boolean | 加 `value: false` 表「全部」 |
+| `date` | `<n-date-picker>` | string | `props.type: 'datetimerange'` → 逗号串 |
 
-**传给后端的格式**：
+**日期区间真实约定（发行包基准）**：
 
 ```js
-// 前端 where 直接展开传后端：
-$common.post('/device/list', { ...tableOptions.where, page: 1, size: 20 })
-// 后端拿到：
-// { sn: 'abc', status: '1', officeId: 'xxx', createDateStart: '2025-01-01', createDateEnd: '2025-01-31', page: 1, size: 20 }
+// where.createDate 的值是一个逗号串，如 '2026-03-01 00:00:00,2026-03-31 23:59:59'
+// 后端脚本直接拆（不存在先展开成 Start/End 的步骤）：
+return db.page("""
+  select * from t_order
+  where is_del = 0
+  ?{createDate && createDate.split(',')[0], and create_date >= #{createDate.split(',')[0]}}
+  ?{createDate && createDate.split(',')[1], and create_date <= #{createDate.split(',')[1]}}
+""")
 ```
+
+**传给后端的格式**：mb-table 内置请求把 `where` 平铺为参数（`{...where, page, size}`）；后端脚本用**同名裸变量**读取（见下方 §magic-api 参数规范）。
 
 ---
 
@@ -541,8 +536,7 @@ const cols = [
     <div class="mb-table">
       <mb-table
         ref="table"
-        :columns="tableOptions.cols"
-        :where="tableOptions.where"
+        v-bind="tableOptions"
         :default-expand-all="true"
         :tree-props="{ children: 'children' }"
         row-key="id"
@@ -710,12 +704,14 @@ const reloadDict = () => {
 { field: 'status', label: '状态', dictType: 'device_status' }
 
 // where 下拉用字典
-{ type: 'select', label: '状态', props: { type: 'device_status' } }
+{ component: 'select', label: '状态', props: { type: 'device_status' } }
 ```
 
 ---
 
 ## ⚠️ magic-api 参数规范（关键！）
+
+> **1.2.0 实测**：请求参数由 magic-api 自动注入为脚本变量——**搜索/查询参数直接用裸变量**（`sn`/`status`/`createDate`），**JSON body 用 `data.x`**。不要再写 `var _b = body; var _w = _b.where`（`parameters` 为空时也能取到裸变量）。
 
 ```js
 // ✅ 正确：单值参数
@@ -756,9 +752,6 @@ return {
     <div class="mb-search">
       <mb-search :where="tableOptions.where" @search="reloadTable">
         <template #buttons>
-          <n-button v-permission="'device:save'" type="primary" :size="$global.uiSize.value" @click="openCreate">
-            <mb-icon icon="Plus" />新增设备
-          </n-button>
           <n-button v-permission="'device:export'" :size="$global.uiSize.value" @click="table.exportExcel({ fileName: '设备' })">
             <mb-icon icon="DownloadOutline" />导出
           </n-button>
@@ -766,15 +759,14 @@ return {
       </mb-search>
     </div>
 
+    <div class="mb-toolbar">
+      <n-button v-permission="'device:save'" type="primary" :size="$global.uiSize.value" @click="openCreate">
+        <mb-icon icon="Plus" />新增设备
+      </n-button>
+    </div>
+
     <div class="mb-table">
-      <mb-table
-        ref="table"
-        :columns="tableOptions.cols"
-        :where="tableOptions.where"
-        :page="true"
-        v-model:checked-row-keys="ids"
-        :size="$global.uiSize.value"
-      />
+      <mb-table ref="table" v-bind="tableOptions" v-model:checked-row-keys="ids" />
     </div>
 
     <mb-modal ref="formDialog" :title="dialogTitle" @confirm="formRef.save($event)" width="800px">
@@ -799,11 +791,11 @@ const dictStore = useDictStore()
 
 const tableOptions = reactive({
   where: {
-    sn: { type: 'input', label: 'SN', value: '', placeholder: '请输入设备SN', like: true },
-    model: { type: 'input', label: '型号', value: '' },
-    status: { type: 'select', label: '状态', value: null, props: { type: 'device_status' } },
-    officeId: { type: 'tree-select', label: '组织', value: null, props: { url: '/system/office/tree', keyField: 'id', labelField: 'name' } },
-    createDate: { type: 'date-range', label: '创建日期', value: null },
+    sn: { component: 'input', label: 'SN', props: { placeholder: '请输入设备SN' } },
+    model: { component: 'input', label: '型号' },
+    status: { component: 'select', label: '状态', props: { type: 'device_status' } },
+    officeId: { component: 'tree-select', label: '组织', props: { url: '/system/office/tree', keyField: 'id', labelField: 'name' } },
+    createDate: { component: 'date', label: '创建时间', props: { type: 'datetimerange' } },
   },
   cols: [
     { field: 'sn', label: 'SN', width: 150, fixed: 'left' },
@@ -830,11 +822,11 @@ const handleAudit = (row) => $common.post('/device/audit', { id: row.id }).then(
 </script>
 ```
 
-**对应 magic-script API**：
+**对应 magic-script API**（1.2.0 基准：搜索参数直接用**裸变量**，JSON body 用 `data.x`）：
 
 ```js
 // src/magic-api/设备管理/设备列表/分页.ms (POST)
-var where = body
+// 搜索参数由 mb-table 平铺传入 → 直接用同名裸变量，不要 `body.where` / `_b` / `_w`
 var officeIds = office()  // 当前用户组织范围
 var sql = """
   SELECT d.*, o.name AS officeName
@@ -843,12 +835,13 @@ var sql = """
   WHERE d.is_del = 0 AND d.office_id IN (?)
 """
 var args = [officeIds]
-if (where.sn) { sql += " AND d.sn LIKE ?"; args.push('%' + where.sn + '%') }
-if (where.model) { sql += " AND d.model = ?"; args.push(where.model) }
-if (where.status) { sql += " AND d.status = ?"; args.push(where.status) }
-if (where.officeId) { sql += " AND d.office_id = ?"; args.push(where.officeId) }
-if (where.createDateStart) { sql += " AND d.create_date >= ?"; args.push(where.createDateStart) }
-if (where.createDateEnd) { sql += " AND d.create_date <= ?"; args.push(where.createDateEnd) }
+if (sn) { sql += " AND d.sn LIKE ?"; args.push('%' + sn + '%') }
+if (model) { sql += " AND d.model = ?"; args.push(model) }
+if (status) { sql += " AND d.status = ?"; args.push(status) }
+if (officeId) { sql += " AND d.office_id = ?"; args.push(officeId) }
+// 日期区间是逗号串，split 取两端
+if (createDate) { sql += " AND d.create_date >= ?"; args.push(createDate.split(',')[0]) }
+if (createDate) { sql += " AND d.create_date <= ?"; args.push(createDate.split(',')[1]) }
 
 var total = db.select("SELECT COUNT(*) AS cnt FROM (" + sql + ") AS _t", ...args).cnt
 sql += " ORDER BY d.create_date DESC LIMIT ? OFFSET ?"
@@ -856,12 +849,12 @@ args.push(size, (page - 1) * size)
 var list = db.select(sql, ...args)
 return { list, total }
 
-// src/magic-api/设备管理/设备列表/删除.ms (POST)
-db.update("UPDATE device SET is_del = 1, update_date = NOW() WHERE id = ?", body.id)
+// src/magic-api/设备管理/设备列表/删除.ms (POST, JSON body)
+db.update("UPDATE device SET is_del = 1, update_date = NOW() WHERE id = ?", data.id)
 return { success: true }
 
-// src/magic-api/设备管理/设备列表/保存.ms (POST)
-if (body.id) {
+// src/magic-api/设备管理/设备列表/保存.ms (POST, JSON body)
+if (data.id) {
   db.update("UPDATE device SET ... WHERE id = ?", ...)
 } else {
   db.insert("INSERT INTO device (...) VALUES (...)", ...)

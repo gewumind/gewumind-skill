@@ -1,6 +1,7 @@
-# 24 — 1.0.0 实测坑与对齐要点（agent 必读）
+# 24 — 实测坑与对齐要点（agent 必读）
 
-> 本文是 1.0.0 后端的实测踩坑清单，均为**必然复现**的问题。
+> 本文对 **1.2.0 发行包 / 内核 0.3.3** 实测有效。
+> 旧 1.0.0 结论（`_b/_w` 显式提取、where 用 `type:`、`date-range` 自动展开 Start/End）**已废弃**，见 §2/§3。
 > 开始新项目前先按本文自检，能省掉大半调试时间。
 
 ## 1. `sql-column-case: camel` —— 结果集键是驼峰，组件必须驼峰
@@ -26,39 +27,39 @@ magic-api:
 **别用驼峰别名**：`select member_id as memberId` 会得到 `memberid`（全小写），
 因为 camel 转换只处理 `snake_case`。要别名就用蛇形 `as member_name`（自动转 `memberName`）。
 
-## 2. 前端首屏 POST 不带 body → 脚本里 `body.xxx` 直接 500
+## 2. 参数注入：搜索参数是**裸变量**，JSON body 是 `data`
 
-`mb-table` 首次渲染、下拉 option 拉取等场景会发 **`POST` 但不带 body**。
-这时脚本里 `body` 是 `null`：
+1.2.0 实测（内核 0.3.3）：magic-api 会把请求参数注入为脚本变量。
+
+- **搜索/查询参数**（mb-table 平铺的 `where`）→ **同名裸变量**；`parameters` 为空也能取到。
+- **JSON body** → 绑定到 `data` 对象，用 `data.x`。
+- **不要**再写 `var _b = body; var _w = _b.where`：`_b/_w` 在 1.2.0 多余，且 `_w` 可能取不到值。
 
 ```js
-var q = body.where          // ✗ body 为 null → 500 target is null
+// ✅ 列表：搜索参数直接用裸变量
+return db.page("""
+  select * from t_card
+  where is_del = 0
+  ?{cardNo, and card_no = #{cardNo}}
+""")
+
+// ✅ 保存：JSON body → data
+var d = data == null ? {} : data      // 首次 POST 无 body 时 data 可能为 null
+if (d.id) { db.update("update t_card set name = #{d.name} where id = #{d.id}") }
+else      { db.insert("insert into t_card(id, name) values(#{id}, #{d.name})") }
 ```
 
-**必须判空**：
+> mb-table 的搜索请求是 **POST**（`parameters: []`），搜索字段照样以裸变量注入，**无需** GET、也**无需**先把 `where` 拆出来。
+
+## 3. `?{}` / `#{}` 解析的是**脚本变量**（不是 SQL 列）
+
+`?{x, and ...}` 里的 `x` 取的是脚本作用域变量，不会自动读 SQL 列名。
+搜索参数本身已是裸变量，可直接用；JSON body 用 `data.x`：
 
 ```js
-var _b = body
-if (_b == null) { _b = {} }
-var _w = _b.where
-if (_w == null) { _w = _b }
-var q_name = _w.name            // 兼容 {where:{name}} 与 {name} 两种形态
-var q_cardNo = _w.cardNo
-if (q_cardNo == null) { q_cardNo = _w.card_no }
-```
-
-## 3. `?{}` / `#{}` 解析的是**脚本变量**，不会自动读 body
-
-平台自带脚本写 `?{username, and ...}` 看着像自动取参，实际取的是**脚本作用域变量**。
-实测：JSON body 里的字段**不会**注入成脚本变量，`body` 也不会自动化开。
-
-所以列表脚本要显式赋值，再交给 SQL 模板：
-
-```js
-var q_username = _w.username
 return db.page("""
     select ... where is_del = 0
-    ?{q_username, and username like concat('%', #{q_username}, '%')}
+    ?{username, and username like concat('%', #{username}, '%')}
 """)
 ```
 
@@ -172,7 +173,7 @@ db.table("t_业务表").primary("id").insert({ id: id, ... })
 
 ## 13. 检查清单（发布前逐条过）
 
-- [ ] 所有列表脚本对 `body == null` 有判空
+- [ ] 列表脚本用**裸变量**取搜索参数；JSON body 用 `data.x`（`data` 可能为 null，先判空）
 - [ ] 组件 `cols.field` / `where` 键是驼峰
 - [ ] 每个 `.ms` 的 `groupId` 能在同目录链上找到对应 `group.json`
 - [ ] 平台基线（系统管理 / function / 组件）完整未删

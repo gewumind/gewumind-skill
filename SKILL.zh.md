@@ -72,7 +72,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 改前端 / 重新部署 / 打包发行版 | `knowledge/gewumind-boot/21-frontend-build-deploy.md` |
 | 不知道怎么开发 / 要不要装 IDEA / 怎么联调调试 | `knowledge/gewumind-boot/22-debug-listen-and-dev-paths.md`（含**监听调试**这个 magic-api 没有的自研能力） |
 | 直接读写 `.ms` 文件 | `knowledge/server-plugin/01-structure.md` §分隔符必须带首尾 `\r\n` |
-| 写组件页面（`.ms`） | `references/component-page.md` + `knowledge/gewumind-boot/04b-sfc-vue-codegen.md` |
+| 写组件页面（`.ms`） | `references/component-page.md` + `knowledge/gewumind-boot/04b-sfc-vue-codegen.md`（1.2.0/0.3.3 基准；真实实例以 `data/{zh,en}/magic-api/component/` 内置页为准） |
 | 写 `.vue`（SFC 表路线，旧版） | `references/conventions.md` §SFC 硬规则 + `knowledge/gewumind-boot/04-dynamic-sfc.md` |
 | `.vue` → SFC SQL（编译） | `references/sfc-compile.md` |
 | 建表 / 公共字段 / 命名 | `references/conventions.md` §表规范 + `knowledge/gewumind-boot/00-table-schema.md` |
