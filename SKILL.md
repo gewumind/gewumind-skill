@@ -79,6 +79,7 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 | Tasks | `knowledge/task/05-pitfalls.md` |
 | Component contracts | `knowledge/gewumind-boot/01-mb-table.md`, `02-mb-form.md` |
 | Release / DB baseline | `knowledge/gewumind-boot/26-delivery-and-baseline.md` |
+| **Testing (unit / integration / browser)** | **`references/testing.md`** (how to test each layer, pass criteria, pitfalls; integration is mandatory after publishing) |
 
 ## 5. Iron rules
 
@@ -111,6 +112,8 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 27. **Permission-aware publish**: every business menu must be granted to a role. Write `sys_menu` + `sys_role_menu` (and `sys_permission_code` for buttons) in the same bundle; otherwise non-admin users cannot see the menu. Verify with a non-admin role.
 28. **Component delete**: `kind=component` + `action=delete` (kernel 0.3.2+); `scripts/ms-component.mjs --delete` prints the payload. Deleting a component does not delete its menu; remove the menu separately.
 29. **Output language**: reply in the user's language; write docs, menu names, and field comments in the project language.
+30. **Prove it runs**: before reporting done, run the integration test from `references/testing.md` (full CRUD + query/paging + non-admin permission). Report what ran, the result, and any failure — never a bare "tests passed".
+31. **Test order is always unit → integration → browser**: unit and integration are required for any published change; browser simulation is optional (depends on a browser) but recommended for UI changes (key paths + 0 console errors).
 
 ## 6. Knowledge index
 
