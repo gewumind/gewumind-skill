@@ -31,6 +31,19 @@
 `bundle_apply` 要连到运行中的实例（默认 `http://localhost:9089`）。
 如果用户还没有可发布的环境，**先让他按路径 ② 跑起来**，再谈 skill。
 
+### 1.4 改了 `.ms` 如何生效（热加载）
+
+magic-api 2.2.2 本身不带文件 watch：
+
+- **在线编辑器**里保存 → 通常即时生效；
+- 但**直接用文件改**（或 SQL 结果缓存未过期）时不一定生效，需要手动重载（内核 1.2.2+，需登录）：
+
+```bash
+curl -X POST http://<host>:<port>/system/magic-api/reload -H "token: <token>"
+```
+
+开发环境可把 `magic-api.cache.ttl` 调小（如 `5000`）。旧版本（<1.2.2）只能重启。
+
 ---
 
 ## 2. 监听调试（Debug & Listen）—— 本项目独有

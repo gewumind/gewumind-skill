@@ -186,7 +186,7 @@ return db.page("""
 | `#{var}` | 参数化占位符（防注入） |
 | `${var}` | 字符串拼接（小心） |
 | `?{cond, expr}` | 条件拼接（cond 真则拼接 expr） |
-| `db.page(sql)` | 分页查询（自动用 where.current/size） |
+| `db.page(sql)` | 分页查询（自动取 body/query 的 current/size；JSON body 亦生效） |
 | `db.table('t').primary('id','1').saveOrUpdate(data)` | upsert |
 | `db.table('t').where().eq('f',v).select()` | 链式查询 |
 | `db.transaction(() => { ... })` | 事务 |

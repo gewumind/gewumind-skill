@@ -80,7 +80,7 @@ gewumind-boot 的数据字典是**前端下拉选项 / 表格列翻译的统一�
 
 **前端用字典**（mb-table 列 / mb-select）：
 - 表格列：`{ field: 'status', label: '状态', dictType: 'status' }` → 自动翻译
-- 表单下拉：`<mb-select v-model="form.status" type="dict_type" :dictType="'status'" />` 或 `dict-type="status"`
+- 表单下拉：`<mb-select v-model="form.status" dict-type="status" />`（也支持 `type="status"`）
 - 代码里手动翻译（⚠️ import 路径必须正确）：
   ```js
   import { useDictStore } from "@/store/modules/dictStore";  // ✅ 唯一正确
@@ -127,8 +127,8 @@ gewumind-boot 的数据字典是**前端下拉选项 / 表格列翻译的统一�
 |---|---|
 | **mb-table 列翻译** | `{ field: 'status', label: '状态', dictType: 'status', width: 80 }` |
 | **mb-search 下拉** | `{ field: 'status', label: '状态', component: 'select', dictType: 'status' }` |
-| **mb-form 下拉** | `<mb-select type="dict_type" :dictType="'status'" v-model="form.status" />` |
-| **n-form-item 下拉** | `<mb-input type="dict_type" dict-type="status" v-model="form.status" />` |
+| **mb-form 下拉** | `<mb-select v-model="form.status" dict-type="status" />` |
+| **n-form-item 下拉** | `<mb-select v-model="form.status" dict-type="status" />` |
 | **手动翻译** | `dictStore.getDictLabel('status', row.status)` |
 | **批量翻译** | `row.status = dictStore.getDictName('status', row.status)` |
 

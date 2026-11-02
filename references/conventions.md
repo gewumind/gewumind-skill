@@ -150,7 +150,7 @@ function handleUpdate(row) {
 - [ ] 弹窗打开用 `.show()`
 - [ ] API 路径**无** `/api` 前缀（`url: '/{module}/{page}/list'`）
 - [ ] API 调用用 `$common.post` / `$common.handleDelete`
-- [ ] 字典字段：表单 `<mb-select type="{dict_type}"/>` + cols 加 `dictType`
+- [ ] 字典字段：表单 `<mb-select dict-type="{dict_type}"/>` + cols 加 `dictType`
 - [ ] 每个 `n-button` 绑 `v-permission`，每个 col 按钮带 `permission`，**权限码唯一不复用**
 - [ ] `n-input`/`n-button`/`n-form` 绑 `:size="$global.uiSize.value"`
 - [ ] ui.md 标注的搜索字段全在 `where`，展示列全在 `cols`，操作列在末尾 `type: 'buttons'`
