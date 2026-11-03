@@ -25,6 +25,7 @@
 - 组织管理：`/sys/office/list|save|delete`（权限码 `office:*`）；字典类型：`/sys/dict/{type}/items`（`dict:*`）
 - magic-script CRUD 模板：`knowledge/gewumind-boot/06-crud-api.md`（`db.page`/`db.table`/`db.selectOne`/`db.update`，参数 `#{param}`，动态条件 `?{param, and x = #{param}}`）
 - **SQL 安全**：禁止 SQL 字符串拼接（`'%" + x`、`= '" + x`、`${x}`）；一律用 `#{x}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布
+- **1.2.2 参数归一**：内核把 form/query 参数也补进 `body`（值均为**字符串**），JSON body 的字段补成顶层变量。脚本里 `body.current > 0` 这类数值比较要兜底 `Long.parseLong(String(body.current))` / `Number(...)`，不要假定 `body` 里是数字
 
 ## 组件页面（.ms）硬规则（1.0.0）
 
@@ -150,7 +151,7 @@ function handleUpdate(row) {
 - [ ] 弹窗打开用 `.show()`
 - [ ] API 路径**无** `/api` 前缀（`url: '/{module}/{page}/list'`）
 - [ ] API 调用用 `$common.post` / `$common.handleDelete`
-- [ ] 字典字段：表单 `<mb-select dict-type="{dict_type}"/>` + cols 加 `dictType`
+- [ ] 字典字段：表单 `<mb-select dict-type="{dict_type}"/>` + cols 加 `dictType`。**`type` / `dictType` 的值都是 `sys_dict.type` 的字典键，加载时 `type` 优先（`type || dictType`）**——`type="xxx"` 等于「加载键为 `xxx` 的字典」，**不是**「这是个字典下拉」的语义标记，别误写成 `type="dict_type"`
 - [ ] 每个 `n-button` 绑 `v-permission`，每个 col 按钮带 `permission`，**权限码唯一不复用**
 - [ ] `n-input`/`n-button`/`n-form` 绑 `:size="$global.uiSize.value"`
 - [ ] ui.md 标注的搜索字段全在 `where`，展示列全在 `cols`，操作列在末尾 `type: 'buttons'`

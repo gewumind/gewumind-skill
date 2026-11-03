@@ -85,3 +85,4 @@ node gewumind-skill/scripts/sfc-compile.mjs <project-root> --uuid device-list
 - 编译用**随机** `data-v-xxx` scopeId（每次重编译会变）——幂等性靠 name 派生的主键 UPSERT 保证，scopeId 变化无副作用（scoped CSS 属性选择器在 compile_css 里与 js 内嵌的 scopeId 一致，二者同次编译生成）
 - 后端发布时 `sys_dynamic_component` 的 UPSERT 按 name 匹配旧记录（主键冲突 → UPDATE）
 - 生成 L2 前**必须**已生成对应 L1（保证 pid 的派生 name 有定义）
+- **旧 `compileJs` 不兼容新内核**：`compileJs` 是编译期产物，跟编译器 / 内核版本绑定。旧版编译器产物（`_ctx.xxx` 访问、ref 成员访问漏 `.value`）在新内核（0.3.5+）上会渲染报错 / 白屏（如 `xxx.getInfo is not a function`）。用旧版本保存过的组件，升级后**必须**在在线编辑器重新保存（或重跑 `scripts/sfc-compile.mjs`）重新生成 `compileJs`；只改 `source_code` 不够

@@ -57,6 +57,7 @@ Verify with a **non-admin** user that has the role; an admin bypasses permission
   The display name is `desc_ribe`; the key used by pages is `type` (e.g. `sex`, `office_type`).
 - `sys_dict_items`: `id, value, label, dict_id, sort, ...`.
 - Reference dictionaries by `type`; never inline user-editable lists in SQL.
+- `<mb-select>` and search selects: both `type` and `dictType` are `sys_dict.type` keys; `type` wins (`type || dictType`). `type="xxx"` means "load the dictionary whose key is `xxx`", NOT a generic "dict dropdown" flag — never write `type="dict_type"`.
 - Seed English labels with `02-seed-en.sql` (deployment-level); do not translate business data.
 
 ## APIs
@@ -66,6 +67,7 @@ Verify with a **non-admin** user that has the role; an admin bypasses permission
 - Use `permission` with `<module>:<action>`; omit it only for deliberately public endpoints.
 - Never generate `/system` paths.
 - `?{}` / `#{}` only see script variables; `body` must be guarded when the request has no body.
+- Since 1.2.2 the kernel also copies form/query params into `body` (values are **strings**) and expands JSON body fields into top-level variables; guard numeric comparisons with `Long.parseLong(String(body.x))` / `Number(...)` instead of assuming numbers.
 
 ## SQL
 

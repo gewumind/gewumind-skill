@@ -80,7 +80,9 @@ gewumind-boot 的数据字典是**前端下拉选项 / 表格列翻译的统一�
 
 **前端用字典**（mb-table 列 / mb-select）：
 - 表格列：`{ field: 'status', label: '状态', dictType: 'status' }` → 自动翻译
-- 表单下拉：`<mb-select v-model="form.status" dict-type="status" />`（也支持 `type="status"`）
+- 表单下拉：`<mb-select v-model="form.status" dict-type="status" />`
+  - `type` / `dictType` 的值**都是 `sys_dict.type` 的字典键**，加载时 `type` 优先（`type || dictType`）；`type` 非空就按字典键加载，不再走 `url` / `options`
+  - ⚠️ `type="xxx"` 是「加载键为 `xxx` 的字典」，**不是**「这是个字典下拉」的语义标记；把字典键写成 `type="dict_type"` 会去加载名为 `dict_type` 的字典（通常为空）
 - 代码里手动翻译（⚠️ import 路径必须正确）：
   ```js
   import { useDictStore } from "@/store/modules/dictStore";  // ✅ 唯一正确
