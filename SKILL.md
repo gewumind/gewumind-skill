@@ -79,6 +79,7 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 | Tasks | `knowledge/task/05-pitfalls.md` |
 | Component contracts | `knowledge/gewumind-boot/01-mb-table.md`, `02-mb-form.md` |
 | Release / DB baseline | `knowledge/gewumind-boot/26-delivery-and-baseline.md` |
+| AI customer service (trusted-chat) | `knowledge/gewumind-boot/25-ai-service.md` (execution principle + how to configure tools/roles; 2.0 commercial feature) |
 | **Testing (unit / integration / browser)** | **`references/testing.md`** (how to test each layer, pass criteria, pitfalls; integration is mandatory after publishing) |
 
 ## 5. Iron rules

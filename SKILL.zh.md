@@ -81,6 +81,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 菜单 SQL | `knowledge/gewumind-boot/05-menu-register.md` |
 | 模块组织（可选，不是必绑） | `knowledge/gewumind-boot/23-module-organization.md` |
 | 改首页 / dashboard | `knowledge/gewumind-boot/24-home-dashboard.md` |
+| 接 AI 客服 / 配 AI 工具与角色 | `knowledge/gewumind-boot/25-ai-service.md`（执行原理 + 配置步骤；2.0 商业能力） |
 | 字典 SQL | `knowledge/gewumind-boot/13-data-dictionary.md` |
 | 发布 / bundle apply | `references/publish-protocol.md` |
 | 工作流 / 报表 / 插件 | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
