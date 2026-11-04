@@ -51,7 +51,7 @@ If the backend is unreachable, **stop** and tell the user. Do not invent artifac
 
 ## 3. Four-stage pipeline
 
-1. **Requirement**: confirm organization levels and roles; write `docs/requirement.md` (7 sections); get confirmation.
+1. **Requirement**: confirm organization levels and roles; if the instance has a knowledge base licensed, first `POST /api/ai/kb/search` for business rules / product conventions / known FAQs (cite `doc_title › heading_path`); write `docs/requirement.md` (7 sections); get confirmation.
 2. **Design**: derive `docs/ui.md`, `database.md`, `api.md`; cross-check; get confirmation.
 3. **Generate**: DDL → seed data → magic-script (api/function/task) → component pages (`.vue` → `.ms`) → menu SQL (+ role bindings) → dictionary SQL. Count the total first, generate item by item, then verify each.
 4. **Publish**: `bundle_apply` (MCP or REST) → check `errors` → run `scripts/verify-publish.mjs` → report; on failure run `scripts/rollback.sh --version <backupVersion>`.
@@ -80,6 +80,7 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 | Component contracts | `knowledge/gewumind-boot/01-mb-table.md`, `02-mb-form.md` |
 | Release / DB baseline | `knowledge/gewumind-boot/26-delivery-and-baseline.md` |
 | AI customer service (trusted-chat) | `knowledge/gewumind-boot/25-ai-service.md` (execution principle + how to configure tools/roles; 2.0 commercial feature) |
+| Knowledge base (AI knowledge source) | `knowledge/gewumind-boot/27-knowledge-base.md` (ACL-first search + citations; `POST /api/ai/kb/search` for dev flow; 2.1 commercial feature) |
 | **Testing (unit / integration / browser)** | **`references/testing.md`** (how to test each layer, pass criteria, pitfalls; integration is mandatory after publishing) |
 
 ## 5. Iron rules

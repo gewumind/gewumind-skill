@@ -55,7 +55,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 
 完整流程、每阶段退出条件、硬格式约束：**读 `references/pipeline.md`**。概要：
 
-1. **阶段 1 · 需求**：与用户确认组织层级和角色 → 写 `docs/requirement.md`（7 节）→ 用户确认
+1. **阶段 1 · 需求**：与用户确认组织层级和角色 →（若实例已授权知识库，先 `POST /api/ai/kb/search` 检索业务规则/产品约定/已知 FAQ，引用 `doc_title › heading_path`）→ 写 `docs/requirement.md`（7 节）→ 用户确认
 2. **阶段 2 · 设计**：从 requirement 派生 `ui.md` / `database.md` / `api.md` → 交叉一致性检查 → 用户确认
 3. **阶段 3 · 生成**：DDL → 预置数据 → magic-script（api/function/task）→ 组件页面（.vue → .ms）→ 菜单 SQL → 字典 SQL。**先数总数，再逐项生成，生成完逐一核对**
 4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 跑 `scripts/verify-publish.mjs` → 报告；失败用 `scripts/rollback.sh` 回退
@@ -82,6 +82,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 模块组织（可选，不是必绑） | `knowledge/gewumind-boot/23-module-organization.md` |
 | 改首页 / dashboard | `knowledge/gewumind-boot/24-home-dashboard.md` |
 | 接 AI 客服 / 配 AI 工具与角色 | `knowledge/gewumind-boot/25-ai-service.md`（执行原理 + 配置步骤；2.0 商业能力） |
+| 接知识库 / 配知识源与访问控制 | `knowledge/gewumind-boot/27-knowledge-base.md`（ACL 前置检索 + 引用；开发流程用 `POST /api/ai/kb/search`；2.1 商业能力） |
 | 字典 SQL | `knowledge/gewumind-boot/13-data-dictionary.md` |
 | 发布 / bundle apply | `references/publish-protocol.md` |
 | 工作流 / 报表 / 插件 | `knowledge/workflow/` / `knowledge/report/` / `knowledge/server-plugin/` |
