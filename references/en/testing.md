@@ -115,3 +115,61 @@ Report to the user: **what ran, the result (pass / fail / not covered), and the 
 - Button permissions need **both** the menu row and the role grant; with only one the button never shows (see `knowledge/gewumind-boot/05-menu-register.md`)
 - For privilege tests, don't stop at the HTTP code — check **whether the response leaked data**
 - Browser login sessions expire; re-validate the session mid-flow for long runs
+
+## 7. Automated test scripts (new in gewumind-skill 2.2)
+
+> Script the three layers above: one test plan (`tests/plan.json`) drives 5 scripts; artifacts land in `reports/` (JSON + JUnit).
+> Linked to the knowledge base: before generating / running, `knowledge.search` for existing cases / business rules / past issues; new cases are saved as drafts and confirmed by a human before being committed.
+> Linked to publishing: `verify-publish.mjs --run-tests` auto-runs smoke + permission tests; **a failure blocks the release** and suggests a rollback.
+
+### 7.1 Test plan format (`tests/plan.json`)
+
+```json
+{
+  "base": "http://localhost:9089",
+  "module": "device",
+  "roles": { "admin": {"username":"admin","password":"123456"}, "operator": {"username":"op","password":"123456"} },
+  "cases": [
+    {"id":"device-list","type":"api","name":"device list","role":"admin","method":"POST","path":"/api/device/list","body":{"page":1,"size":10},
+     "expect":{"http":200,"code":200,"shape":{"data.list":"array","data.total":"number"}}},
+    {"id":"device-detail-unauth","type":"permission","name":"operator detail access must be denied","role":"operator","method":"POST","path":"/api/device/detail","body":{"id":1},
+     "expect":{"denied":true,"noData":true}},
+    {"id":"device-page","type":"ui","name":"device page CRUD smoke","role":"admin","url":"/device/list","steps":["login","goto","assert-table"]}
+  ]
+}
+```
+
+`expect` fields: `http` (expected status) / `code` (expected business code) / `shape` (dot-path → type `array|number|string|object|boolean|present|absent`) / `denied` (expect rejection: 401/403 or code≠200) / `noData` (expect no `data` in the response, guarding against privilege leaks). Omit `role` = anonymous (no token).
+
+### 7.2 Scripts (`scripts/`, sharing `scripts/lib/gwtest.mjs`)
+
+| Script | Purpose | Usage |
+|---|---|---|
+| `test-plan.mjs` | Scan `docs/api.md` for `METHOD /path` to scaffold a plan / validate / list cases | `node scripts/test-plan.mjs scaffold --api-doc docs/api.md --base <base> --out tests/plan.json`; `... validate --plan tests/plan.json`; `... list --plan tests/plan.json` |
+| `api-test.mjs` | Run `type=api` cases (happy-path contract: HTTP/code/field shape) | `node scripts/api-test.mjs --plan tests/plan.json [--base ...] [--out reports/] [--json]` |
+| `permission-test.mjs` | Run `type=permission` cases (role×endpoint matrix, assert rejection + no data leak) | `node scripts/permission-test.mjs --plan tests/plan.json [--base ...] [--out reports/] [--json]` |
+| `ui-smoke.mjs` | Run `type=ui` cases (Playwright login/navigate/table render/0 console errors) | `node scripts/ui-smoke.mjs --plan tests/plan.json [--out reports/]` (needs `npm i -D playwright && npx playwright install chromium`; exits 3 to skip if missing) |
+| `regression.mjs` | Run all api+permission cases, diff failures against a baseline | `node scripts/regression.mjs --plan tests/plan.json [--baseline reports/baseline.json] [--out reports/]` |
+
+Exit codes: all pass 0; any failure 1; arg/plan error 2; (ui-smoke) Playwright missing 3. Reports: `reports/<name>.json` + `reports/<name>.xml` (JUnit).
+
+### 7.3 Workflow
+
+1. **Generate the plan**: `test-plan.mjs scaffold` from `docs/api.md` → a human/LLM fills in real `roles` accounts, `permission` privilege cases, `ui` cases, fixtures and exact `shape` assertions.
+2. **Run**: `api-test` + `permission-test` (always) → `ui-smoke` (when a browser is available) → `regression` (full pre-release + baseline diff).
+3. **Report**: tell the user what ran, pass/fail/not-covered, and the symptom + location of any failure; **never just say "tests passed"**.
+4. **Release gate**: `verify-publish.mjs --run-tests` auto-runs smoke + permission tests; a failure → block the release and suggest a rollback (see `references/en/publish-protocol.md`).
+
+### 7.4 Privilege-bug interception (example)
+
+Seed a privilege bug (an endpoint missing a permission check, so a normal role can read data) → `permission-test`'s `noData` assertion fails (the response carries `data`) → exit code 1 → `verify-publish --run-tests` blocks the release. This is the "tests can stop a bad release" loop.
+
+### 7.5 H5 external customer-service cases (new in 2.2)
+
+H5 channels use SSE (`POST /api/ai/h5/ask`, `channel` + `userId`), not a plain JSON endpoint, so `api-test`'s `shape` assertions don't apply. Cover three classes with `type=api` cases + a custom assertion script:
+
+- **Golden set**: an anonymous / phone visitor asks a business question → assert `success` and that the answer contains real data (a phone visitor should hit their own data)
+- **Privilege matrix**: an anonymous visitor asks about someone else's data → assert `NO_DATA` (0 leak); cross-user → `NEED_CLARIFY`
+- **Handoff**: a visitor triggers a handoff → assert a `pending` ticket lands in `sys_ai_handoff`
+
+> The identity parameter is `userId` (`phone:<number>` / `anon:<id>` prefix, produced by `resolveExternalId`); a magic-api tool endpoint must strip the `phone:` prefix and read the script variable directly (the internal `execute`'s `req` is null, so `#{}`/`?{}` can't bind the injected param). A tool's `params_schema` must not set `required:["phone"]` (it triggers `NEED_CLARIFY`).

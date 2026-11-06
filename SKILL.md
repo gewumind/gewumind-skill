@@ -5,7 +5,7 @@ description: Build complete business applications on a running GewuMind Boot (ma
 
 # GewuMind Boot Development Skill
 
-> Version 2.1.0 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
+> Version 2.2.0 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
 > Chinese reference: `SKILL.zh.md`. Deep platform knowledge: `knowledge/` (Chinese).
 
 Turn a natural-language requirement into a **publishable business application**: SQL tables + magic-api scripts + Vue dynamic components + menu/dictionary data, published with one `bundle_apply`.
@@ -54,7 +54,7 @@ If the backend is unreachable, **stop** and tell the user. Do not invent artifac
 1. **Requirement**: confirm organization levels and roles; if the instance has a knowledge base licensed, first `POST /api/ai/kb/search` for business rules / product conventions / known FAQs (cite `doc_title › heading_path`); write `docs/requirement.md` (7 sections); get confirmation.
 2. **Design**: derive `docs/ui.md`, `database.md`, `api.md`; cross-check; get confirmation.
 3. **Generate**: DDL → seed data → magic-script (api/function/task) → component pages (`.vue` → `.ms`) → menu SQL (+ role bindings) → dictionary SQL. Count the total first, generate item by item, then verify each.
-4. **Publish**: `bundle_apply` (MCP or REST) → check `errors` → run `scripts/verify-publish.mjs` → report; on failure run `scripts/rollback.sh --version <backupVersion>`.
+4. **Publish**: `bundle_apply` (MCP or REST) → check `errors` → run the test gate `scripts/verify-publish.mjs --plan tests/plan.json` (component/API/menu + api/permission test cases; a failure blocks the release) → report; on failure run `scripts/rollback.sh --version <backupVersion>`.
 
 Wait for user confirmation after each stage. Do not run all stages in one go.
 
@@ -82,6 +82,7 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 | AI customer service (trusted-chat) | `knowledge/gewumind-boot/25-ai-service.md` (execution principle + how to configure tools/roles; 2.0 commercial feature) |
 | Knowledge base (AI knowledge source) | `knowledge/gewumind-boot/27-knowledge-base.md` (ACL-first search + citations; `POST /api/ai/kb/search` for dev flow; 2.1 commercial feature) |
 | **Testing (unit / integration / browser)** | **`references/testing.md`** (how to test each layer, pass criteria, pitfalls; integration is mandatory after publishing) |
+| **Automated test scripts (2.2)** | **`references/testing.md` §7** + `scripts/test-plan.mjs` / `api-test.mjs` / `permission-test.mjs` / `ui-smoke.mjs` / `regression.mjs` (one `tests/plan.json` drives all; JSON+JUnit reports; `verify-publish --plan` gates publish) |
 
 ## 5. Iron rules
 
@@ -116,6 +117,7 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 29. **Output language**: reply in the user's language; write docs, menu names, and field comments in the project language.
 30. **Prove it runs**: before reporting done, run the integration test from `references/testing.md` (full CRUD + query/paging + non-admin permission). Report what ran, the result, and any failure — never a bare "tests passed".
 31. **Test order is always unit → integration → browser**: unit and integration are required for any published change; browser simulation is optional (depends on a browser) but recommended for UI changes (key paths + 0 console errors).
+32. **Automated test gate (2.2)**: before publishing, generate a `tests/plan.json` (`scripts/test-plan.mjs scaffold` from `docs/api.md`, then refine roles/permission/ui cases), run `api-test.mjs` + `permission-test.mjs` (mandatory) and `ui-smoke.mjs` (when a browser is available), and gate the publish with `verify-publish.mjs --plan tests/plan.json` — a failing case (especially a `noData` permission leak) blocks the release. Reports land in `reports/` (JSON + JUnit); never report "tests passed" without running them.
 
 ## 6. Knowledge index
 

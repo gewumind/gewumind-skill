@@ -170,6 +170,8 @@ node scripts/verify-publish.mjs --base http://localhost:9089 \
 - 菜单需要登录态：`--username/--password`（脚本自己 `sha256` 后登录）或 `--token <uuid>`
 - 退出码：0 全通过，1 有失败，2 参数错误
 
+**测试门禁（2.2）**：加 `--plan tests/plan.json` 可在只读验证之外，额外跑该计划的 `api` + `permission` 用例（复用 `scripts/lib/gwtest.mjs`），任一失败（尤其 `noData` 越权泄漏）→ 整体 `FAILED`（退出码 1）→ **阻止发布**。计划由 `scripts/test-plan.mjs scaffold` 从 `docs/api.md` 生成骨架后补全，详见 `references/testing.md` §7。
+
 验证失败时，回滚到发布前自动创建的备份版本（`bundle_apply` 响应的 `backupVersion`）：
 
 ```bash

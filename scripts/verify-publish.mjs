@@ -18,6 +18,7 @@
  * 退出码：全部通过 0；有失败 1；参数错误 2。只读，不修改任何文件。
  */
 import { createHash } from 'node:crypto';
+import { loadPlan, runHttpCase } from './lib/gwtest.mjs';
 
 const TIMEOUT = 15000;
 const opts = {
@@ -25,6 +26,7 @@ const opts = {
   apiMethod: 'POST',
   apiBody: { page: 1, size: 1 },
   json: false,
+  plan: null,
 };
 
 function usage(msg) {
@@ -33,7 +35,8 @@ function usage(msg) {
   node scripts/verify-publish.mjs --base http://localhost:9089 \\
     [--component 设备列表] [--api /api/device/list] [--menu-url /device/list] \\
     [--token <uuid> | --username <u> --password <p>] \\
-    [--api-method POST] [--api-body '{"page":1,"size":1}'] [--json]`);
+    [--api-method POST] [--api-body '{"page":1,"size":1}'] \\
+    [--plan tests/plan.json] [--json]`);
   process.exit(2);
 }
 
@@ -57,6 +60,7 @@ for (let i = 0; i < argv.length; i++) {
     case '--token': opts.token = val(); break;
     case '--username': opts.username = val(); break;
     case '--password': opts.password = val(); break;
+    case '--plan': opts.plan = val(); break;
     case '--json': opts.json = true; break;
     case '-h': case '--help': usage(); break;
     default: usage(`未知参数 ${a}`);
@@ -64,7 +68,7 @@ for (let i = 0; i < argv.length; i++) {
 }
 
 opts.base = opts.base.replace(/\/+$/, '');
-if (!opts.component && !opts.api && !opts.menuUrl) usage('至少给 --component / --api / --menu-url 之一');
+if (!opts.component && !opts.api && !opts.menuUrl && !opts.plan) usage('至少给 --component / --api / --menu-url / --plan 之一');
 if (opts.menuUrl && !opts.token && !(opts.username && opts.password)) {
   usage('--menu-url 需要 --token 或 --username/--password');
 }
@@ -157,6 +161,25 @@ if (opts.menuUrl) {
       else record(false, `menu not found: ${opts.menuUrl}`);
     } catch (e) {
       record(false, `menu check failed: ${e.message}`);
+    }
+  }
+}
+
+// 发布门禁：给了 --plan 则跑其中 api + permission 用例（复用 gwtest.runHttpCase），失败 → 阻止发布
+if (opts.plan) {
+  let plan;
+  try { plan = loadPlan(opts.plan); } catch (e) { record(false, `plan 加载失败：${e.message}`); plan = null; }
+  if (plan) {
+    if (opts.base) plan.base = opts.base;
+    const cases = plan.cases.filter((c) => c.type === 'api' || c.type === 'permission');
+    if (!cases.length) record(false, `plan ${opts.plan} 没有 api/permission 用例`);
+    for (const c of cases) {
+      try {
+        const r = await runHttpCase(plan, c);
+        record(r.ok, `[${c.type}] ${c.id} ${r.msg}`);
+      } catch (e) {
+        record(false, `[${c.type}] ${c.id} 异常 ${e.message}`);
+      }
     }
   }
 }

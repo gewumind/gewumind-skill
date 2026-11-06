@@ -115,3 +115,61 @@ await page.waitForURL('**/home');          // 等登录后的稳定锚点
 - 按钮权限要「菜单行 + 角色授权」两份，少一份按钮不显示（见 `knowledge/gewumind-boot/05-menu-register.md`）
 - 越权测试别只看 HTTP 码，要看**响应里有没有带出数据**
 - 浏览器登录态有时效，长流程中途要重新校验会话
+
+## 7. 自动化测试脚本（gewumind-skill 2.2 新增）
+
+> 把上面三层测试**脚本化**：一份测试计划（`tests/plan.json`）驱动 5 个脚本，产物落 `reports/`（JSON + JUnit）。
+> 与知识库联动：生成 / 执行前先 `knowledge.search` 检索既有用例 / 业务规则 / 历史问题；新用例先存草稿，人工确认后入库。
+> 与发布联动：`verify-publish.mjs --run-tests` 自动跑冒烟 + 权限测试，**失败阻止发布**并提示回滚。
+
+### 7.1 测试计划格式（`tests/plan.json`）
+
+```json
+{
+  "base": "http://localhost:9089",
+  "module": "device",
+  "roles": { "admin": {"username":"admin","password":"123456"}, "operator": {"username":"op","password":"123456"} },
+  "cases": [
+    {"id":"device-list","type":"api","name":"设备列表","role":"admin","method":"POST","path":"/api/device/list","body":{"page":1,"size":10},
+     "expect":{"http":200,"code":200,"shape":{"data.list":"array","data.total":"number"}}},
+    {"id":"device-detail-unauth","type":"permission","name":"operator 访问详情应被拒","role":"operator","method":"POST","path":"/api/device/detail","body":{"id":1},
+     "expect":{"denied":true,"noData":true}},
+    {"id":"device-page","type":"ui","name":"设备页 CRUD 冒烟","role":"admin","url":"/device/list","steps":["login","goto","assert-table"]}
+  ]
+}
+```
+
+`expect` 字段：`http`（期望状态码）/ `code`（期望业务码）/ `shape`（点路径→类型 `array|number|string|object|boolean|present|absent`）/ `denied`（期望被拒：401/403 或 code≠200）/ `noData`（期望响应不夹带 `data`，防越权泄漏）。`role` 省略 = 匿名（无 token）。
+
+### 7.2 脚本（`scripts/`，共享 `scripts/lib/gwtest.mjs`）
+
+| 脚本 | 作用 | 用法 |
+|---|---|---|
+| `test-plan.mjs` | 从 `docs/api.md` 扫描 `METHOD /path` 生成计划骨架 / 校验 / 列用例 | `node scripts/test-plan.mjs scaffold --api-doc docs/api.md --base <base> --out tests/plan.json`；`... validate --plan tests/plan.json`；`... list --plan tests/plan.json` |
+| `api-test.mjs` | 跑 `type=api` 用例（正向契约：HTTP/code/字段结构） | `node scripts/api-test.mjs --plan tests/plan.json [--base ...] [--out reports/] [--json]` |
+| `permission-test.mjs` | 跑 `type=permission` 用例（角色×接口矩阵，断言被拒 + 不夹带数据） | `node scripts/permission-test.mjs --plan tests/plan.json [--base ...] [--out reports/] [--json]` |
+| `ui-smoke.mjs` | 跑 `type=ui` 用例（Playwright 登录/进页面/表格渲染/0 console error） | `node scripts/ui-smoke.mjs --plan tests/plan.json [--out reports/]`（需 `npm i -D playwright && npx playwright install chromium`；未装退出码 3 跳过） |
+| `regression.mjs` | 跑全部 api+permission 用例，与基线对比输出失败差异 | `node scripts/regression.mjs --plan tests/plan.json [--baseline reports/baseline.json] [--out reports/]` |
+
+退出码：全过 0；有失败 1；参数/计划错误 2；（ui-smoke）Playwright 缺失 3。报告：`reports/<name>.json` + `reports/<name>.xml`（JUnit）。
+
+### 7.3 工作流
+
+1. **生成计划**：`test-plan.mjs scaffold` 从 `docs/api.md` 出骨架 → 人工/LLM 补全 `roles` 真实账号、`permission` 越权用例、`ui` 用例、夹具与精确 `shape` 断言。
+2. **执行**：`api-test` + `permission-test`（必跑）→ `ui-smoke`（有浏览器环境时）→ `regression`（发布前全量 + 基线对比）。
+3. **报告**：向用户报告跑了哪些、通过/失败/未覆盖、失败项现象与定位；**绝不凭空写"测试通过"**。
+4. **发布门禁**：`verify-publish.mjs --run-tests` 自动跑冒烟 + 权限测试，失败 → 阻止发布并提示回滚（见 `references/publish-protocol.md`）。
+
+### 7.4 越权 bug 拦截（示例）
+
+预置一个越权 bug（某接口未做权限校验，普通角色能拿到数据）→ `permission-test` 的 `noData` 断言会失败（响应夹带 `data`）→ 退出码 1 → `verify-publish --run-tests` 阻止发布。这就是"测试能拦住坏发布"的闭环。
+
+### 7.5 H5 对外客服用例（2.2 新增）
+
+H5 渠道走 SSE（`POST /api/ai/h5/ask`，`channel` + `userId`），不是普通 JSON 接口，`api-test` 的 `shape` 断言不适用。用 `type=api` 用例 + 自定义断言脚本覆盖三类：
+
+- **黄金集**：匿名 / 手机号访客问业务问题 → 断言 `success` 且答案含真实数据（手机号访客应命中本人数据）
+- **越权矩阵**：匿名访客问他人数据 → 断言 `NO_DATA`（0 泄漏）；跨用户 → `NEED_CLARIFY`
+- **转人工**：访客触发转人工 → 断言 `sys_ai_handoff` 落 `pending` 工单
+
+> 身份参数是 `userId`（`phone:<手机号>` / `anon:<id>` 前缀，由 `resolveExternalId` 生成）；magic-api 工具端点须剥 `phone:` 前缀、直接取脚本变量（内部 `execute` 的 `req` 为 null，`#{}`/`?{}` 绑定不到注入参数）。工具 `params_schema` 勿 `required:["phone"]`（会触发 `NEED_CLARIFY`）。

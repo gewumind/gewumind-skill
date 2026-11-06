@@ -5,7 +5,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 
 # GewuMind Boot 开发 Skill
 
-> 版本 1.2.0（`VERSION`）——与 `gewumind-boot` 保持同一版本号，两者同 tag 发布。
+> 版本 2.2.0（`VERSION`）——与 `gewumind-boot` 保持同一版本号，两者同 tag 发布。
 
 把一个自然语言需求变成**可发布的业务应用**：SQL 建表 + magic-api 脚本 + Vue 动态组件 + 菜单/字典数据，最后通过 `bundle_apply` 一次推送到运行中的 GewuMind Boot 后端。
 
@@ -58,7 +58,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 1. **阶段 1 · 需求**：与用户确认组织层级和角色 →（若实例已授权知识库，先 `POST /api/ai/kb/search` 检索业务规则/产品约定/已知 FAQ，引用 `doc_title › heading_path`）→ 写 `docs/requirement.md`（7 节）→ 用户确认
 2. **阶段 2 · 设计**：从 requirement 派生 `ui.md` / `database.md` / `api.md` → 交叉一致性检查 → 用户确认
 3. **阶段 3 · 生成**：DDL → 预置数据 → magic-script（api/function/task）→ 组件页面（.vue → .ms）→ 菜单 SQL → 字典 SQL。**先数总数，再逐项生成，生成完逐一核对**
-4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 跑 `scripts/verify-publish.mjs` → 报告；失败用 `scripts/rollback.sh` 回退
+4. **阶段 4 · 发布**：调 MCP `bundle_apply`（或 REST `/api/ai/bundle/apply`）→ 检查 errors → 跑测试门禁 `scripts/verify-publish.mjs --plan tests/plan.json`（组件/接口/菜单 + api/permission 用例；失败即阻止发布）→ 报告；失败用 `scripts/rollback.sh` 回退
 
 **每阶段结束等用户确认再进下一阶段**。不要一口气跑完。
 
@@ -90,6 +90,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 | 组件数据契约踩坑 | `knowledge/gewumind-boot/01-mb-table.md` §实测补充 + `02-mb-form.md` §实测补充（多选是逗号串、model 不能换引用） |
 | 打包发行版 / 数据库基线 | `knowledge/gewumind-boot/26-delivery-and-baseline.md`（dist 打包、两层基线、还原验证） |
 | **测试（单元 / 集成 / 浏览器模拟）** | **`references/testing.md`**（三层测试怎么做、通过标准、常见坑；发布后必跑集成测试） |
+| **自动化测试脚本（2.2）** | **`references/testing.md` §7** + `scripts/test-plan.mjs` / `api-test.mjs` / `permission-test.mjs` / `ui-smoke.mjs` / `regression.mjs`（一份 `tests/plan.json` 驱动全部；JSON+JUnit 报告；`verify-publish --plan` 做发布门禁） |
 
 ## 铁律（违反必然出 bug）
 
@@ -121,6 +122,7 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
 26. **发行包 ≠ 可直接部署**：`db/init/01-baseline.sql` 只有平台表，业务项目须另出 `02-<项目>-baseline.sql`；打包前必须先停实例（fat jar 运行中不可覆盖）。详见 `knowledge/gewumind-boot/26-delivery-and-baseline.md`
 27. **证明它能跑，别只说"通过"**：报告完成前跑 `references/testing.md` 的集成测试（CRUD 全链路 + 查询分页 + 普通角色权限），说明跑了哪些、结果如何、失败项在哪
 28. **测试顺序恒为 单元 → 集成 → 浏览器模拟**：单元/集成是任何发布变更的必做项；浏览器模拟依赖环境可选，但涉及 UI 变更时推荐跑（关键路径 + 控制台 0 error）
+29. **自动化测试门禁（2.2）**：发布前用 `scripts/test-plan.mjs scaffold` 从 `docs/api.md` 生成 `tests/plan.json`（再补全 roles/permission/ui 用例），跑 `api-test.mjs` + `permission-test.mjs`（必跑）与 `ui-smoke.mjs`（有浏览器时），并用 `verify-publish.mjs --plan tests/plan.json` 做发布门禁——任一用例失败（尤其 `noData` 越权泄漏）即阻止发布。报告落 `reports/`（JSON + JUnit）；没跑过绝不报"测试通过"
 
 ## 知识库索引（knowledge/）
 
