@@ -2,6 +2,22 @@
 
 后端 API 用 magic-script 编写（.ms 文件），存于 `data/zh/magic-api/api/{group}/{apiName}.ms`。
 
+### 强制约定（生成 / 编写 API 必须遵守）
+
+1. **校验用 `exit`/`assert`，禁止用 `return` 做校验**
+   - 参数校验失败、业务拦截：`exit 400, 'xx不能为空'` 或 `assert xx != null : 400, 'xx不能为空'`
+   - `return` 只用于脚本**末尾**返回最终结果（`return db.page(...)` / `return { ... }`）
+   - ❌ 反模式：`if(!name){ return {code:400} }`（语义含糊，跨版本行为不一致）
+2. **列表查询统一用 `db.page(...)`**
+   - 响应统一为 `{ records: [...], total: N, current: N, size: N }`（wrapper 再套 `{code,data,message}`）
+   - ❌ 不要手写 `{rows:[...],total}` / `{list:[...]}` / 裸数组 / 嵌套 `{code,data:{list}}`，前端与测试才能用统一逻辑解析
+3. **搜索字段统一用 `keyword`**
+   - 列表接口的全局模糊搜索参数一律命名 `keyword`（`?{keyword, and (a like ... or b like ...)}`）
+   - ❌ 不要混用 `kw` / `searchText` / `search`
+4. **同一系统内字段命名一致**
+   - 同一业务概念在所有接口用**同一个字段名**（如模块标识统一 `module`，不要有的接口 `module`、有的 `deviceType`）
+5. **循环不用 C 风格 `for`**：用 `for (x in 集合)` / `for (x in range(a,b))` / `while`（见 `01-grammar.md`）
+
 ### AI 生成新 API 的流程（变更后）
 
 **不**再通过 `/api/ai/script/save` 这种专用接口即时写入。AI 应该：

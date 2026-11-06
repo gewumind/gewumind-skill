@@ -23,6 +23,11 @@ magic-script 是 magic-api 内置的动态脚本语言，语法类似 JavaScript
 | `do...while` | ❌ **不支持** |
 | `class` | ❌ **不支持类定义** |
 
+> ⚠️ **变量命名**：上表关键字**不能**用作变量名（如 `var in = 1` 会报错：`变量名 'in' 是保留关键字`）。
+> 循环变量、临时变量请避开关键字，用 `n`、`k`、`item`、`loopVar`、`idx2` 等。
+> 说明：`i`、`c`、`idx` 在 magic-script 1.9.x **可以**正常用作变量名（早期版本曾受限）；
+> 真正不能用的是上表关键字，以及 C 风格 `for` 写法（见「循环」）。
+
 ### 类型字面量
 
 | 字面量 | 类型 |
@@ -104,6 +109,9 @@ while(i < 10) {
 }
 ```
 
+> ⚠️ **不支持 C 风格 `for(init; cond; incr)` 循环**。`for (var i = 0; i < n; i++)` 会报错。
+> 数值循环用 `for (x in range(起, 止))`（含首尾）或 `while`；遍历集合用 `for (x in 集合)`。
+
 ### if / exit / assert
 
 ```javascript
@@ -125,6 +133,22 @@ exit 500, '服务器错误'
 assert name != null && name != '' : 400, '名称不能为空'
 assert age >= 18 : '年龄必须满 18'
 ```
+
+> 🚨 **`return` vs `exit`（接口脚本务必分清）**
+> - `return <值>`：只设置**最终响应体**，语义上"返回脚本结果"。**不要**用它做参数校验 / 提前终止。
+> - `exit code, 'msg'[, data]` / `assert cond : code, 'msg'`：**终止脚本执行**并返回指定响应。
+>
+> 【强制】参数校验失败、业务拦截**必须**用 `exit` / `assert`：
+> ```javascript
+> // ✅ 正确：校验失败立即终止，后续 SQL 不会执行
+> if (name == null || name == '') { exit 400, 'name不能为空' }
+> // 或一行断言
+> assert name != null && name != '' : 400, 'name不能为空'
+>
+> // ❌ 反模式：用 return 做校验（语义含糊，跨版本/跨写法行为不一致，易踩坑）
+> if (name == null || name == '') { return { code: 400, message: 'name不能为空' } }
+> ```
+> `return` 只用在脚本**末尾**返回最终结果（如 `return db.page(...)`、`return { user, roles }`）。
 
 ### try/catch/finally
 

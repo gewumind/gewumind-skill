@@ -131,7 +131,7 @@ await page.waitForURL('**/home');          // 等登录后的稳定锚点
   "roles": { "admin": {"username":"admin","password":"123456"}, "operator": {"username":"op","password":"123456"} },
   "cases": [
     {"id":"device-list","type":"api","name":"设备列表","role":"admin","method":"POST","path":"/api/device/list","body":{"page":1,"size":10},
-     "expect":{"http":200,"code":200,"shape":{"data.list":"array","data.total":"number"}}},
+     "expect":{"http":200,"code":200,"shape":{"data.@list":"array","data.@total":"number"}}},
     {"id":"device-detail-unauth","type":"permission","name":"operator 访问详情应被拒","role":"operator","method":"POST","path":"/api/device/detail","body":{"id":1},
      "expect":{"denied":true,"noData":true}},
     {"id":"device-page","type":"ui","name":"设备页 CRUD 冒烟","role":"admin","url":"/device/list","steps":["login","goto","assert-table"]}
@@ -140,6 +140,9 @@ await page.waitForURL('**/home');          // 等登录后的稳定锚点
 ```
 
 `expect` 字段：`http`（期望状态码）/ `code`（期望业务码）/ `shape`（点路径→类型 `array|number|string|object|boolean|present|absent`）/ `denied`（期望被拒：401/403 或 code≠200）/ `noData`（期望响应不夹带 `data`，防越权泄漏）。`role` 省略 = 匿名（无 token）。
+
+> **列表断言用伪路径**：`shape` 支持 `data.@list`（兼容 `records`/`rows`/`list`/裸数组）与 `data.@total`，
+> 不必为不同系统的响应格式（`records` vs `rows` vs `list`）写不同字段名。
 
 ### 7.2 脚本（`scripts/`，共享 `scripts/lib/gwtest.mjs`）
 

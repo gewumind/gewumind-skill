@@ -131,7 +131,7 @@ Report to the user: **what ran, the result (pass / fail / not covered), and the 
   "roles": { "admin": {"username":"admin","password":"123456"}, "operator": {"username":"op","password":"123456"} },
   "cases": [
     {"id":"device-list","type":"api","name":"device list","role":"admin","method":"POST","path":"/api/device/list","body":{"page":1,"size":10},
-     "expect":{"http":200,"code":200,"shape":{"data.list":"array","data.total":"number"}}},
+     "expect":{"http":200,"code":200,"shape":{"data.@list":"array","data.@total":"number"}}},
     {"id":"device-detail-unauth","type":"permission","name":"operator detail access must be denied","role":"operator","method":"POST","path":"/api/device/detail","body":{"id":1},
      "expect":{"denied":true,"noData":true}},
     {"id":"device-page","type":"ui","name":"device page CRUD smoke","role":"admin","url":"/device/list","steps":["login","goto","assert-table"]}
@@ -140,6 +140,8 @@ Report to the user: **what ran, the result (pass / fail / not covered), and the 
 ```
 
 `expect` fields: `http` (expected status) / `code` (expected business code) / `shape` (dot-path → type `array|number|string|object|boolean|present|absent`) / `denied` (expect rejection: 401/403 or code≠200) / `noData` (expect no `data` in the response, guarding against privilege leaks). Omit `role` = anonymous (no token).
+
+> **List assertions use pseudo-paths**: `shape` supports `data.@list` (tolerates `records`/`rows`/`list`/bare array) and `data.@total`, so you don't have to write different field names for different response formats.
 
 ### 7.2 Scripts (`scripts/`, sharing `scripts/lib/gwtest.mjs`)
 

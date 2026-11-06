@@ -68,6 +68,11 @@ Verify with a **non-admin** user that has the role; an admin bypasses permission
 - Never generate `/system` paths.
 - `?{}` / `#{}` only see script variables; `body` must be guarded when the request has no body.
 - Since 1.2.2 the kernel also copies form/query params into `body` (values are **strings**) and expands JSON body fields into top-level variables; guard numeric comparisons with `Long.parseLong(String(body.x))` / `Number(...)` instead of assuming numbers.
+- **Validate with `exit`/`assert`, never `return`**: on validation failure / business block use `exit 400, 'msg'` or `assert cond : 400, 'msg'` (terminates execution); `return` is only for the final result at the end of the script. ❌ `if(!x){return {code:400}}`
+- **Lists always use `db.page(...)`**: response is fixed to `{records, total, current, size}` (wrapper adds `{code,data,msg}`); ❌ do not hand-write `{rows}`/`{list}`/bare array/nested
+- **Search field is always `keyword`**: the global fuzzy-search param on list endpoints is `keyword`; ❌ not `kw`/`searchText`/`search`
+- **Consistent field naming within a system**: the same business concept uses the same field name across all endpoints (e.g. module discriminator is always `module`, never `module`/`deviceType` mixed)
+- **No C-style `for`**: use `for (x in collection)` / `for (x in range(a,b))` / `while`; ❌ `for (var i=0; i<n; i++)` (magic-script does not support it; see `knowledge/api/01-grammar.md`)
 
 ## SQL
 

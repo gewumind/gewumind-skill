@@ -26,6 +26,11 @@
 - magic-script CRUD 模板：`knowledge/gewumind-boot/06-crud-api.md`（`db.page`/`db.table`/`db.selectOne`/`db.update`，参数 `#{param}`，动态条件 `?{param, and x = #{param}}`）
 - **SQL 安全**：禁止 SQL 字符串拼接（`'%" + x`、`= '" + x`、`${x}`）；一律用 `#{x}` 参数化、`?{cond, ...}` 条件拼接。生成后跑 `node scripts/sql-check.mjs <project>`，exit 0 才能发布
 - **1.2.2 参数归一**：内核把 form/query 参数也补进 `body`（值均为**字符串**），JSON body 的字段补成顶层变量。脚本里 `body.current > 0` 这类数值比较要兜底 `Long.parseLong(String(body.current))` / `Number(...)`，不要假定 `body` 里是数字
+- **校验用 `exit`/`assert`，禁止 `return` 做校验**：参数校验失败 / 业务拦截用 `exit 400, 'msg'` 或 `assert cond : 400, 'msg'`（终止执行）；`return` 只用于脚本末尾返回最终结果。❌ `if(!x){return {code:400}}`
+- **列表统一 `db.page(...)`**：响应固定 `{records, total, current, size}`（wrapper 再套 `{code,data,msg}`）；❌ 不要手写 `{rows}`/`{list}`/裸数组/嵌套
+- **搜索字段统一 `keyword`**：列表全局模糊搜索参数一律 `keyword`；❌ 不要 `kw`/`searchText`/`search`
+- **同系统字段命名一致**：同一业务概念所有接口用同一字段名（如模块标识统一 `module`，不要 `module`/`deviceType` 混用）
+- **循环不用 C 风格 `for`**：`for (x in 集合)` / `for (x in range(a,b))` / `while`；❌ `for (var i=0; i<n; i++)`（magic-script 不支持，见 `knowledge/api/01-grammar.md`）
 
 ## 组件页面（.ms）硬规则（1.0.0）
 

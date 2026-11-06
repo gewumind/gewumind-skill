@@ -16,8 +16,8 @@
  *     "roles": { "admin": {"username":"admin","password":"123456"}, "operator": {...} },
  *     "cases": [
  *       {"id":"device-list","type":"api","name":"设备列表","role":"admin",
- *        "method":"POST","path":"/api/device/list","body":{"page":1,"size":10},
- *        "expect":{"http":200,"code":200,"shape":{"data.list":"array","data.total":"number"}}},
+  *        "method":"POST","path":"/api/device/list","body":{"page":1,"size":10},
+  *        "expect":{"http":200,"code":200,"shape":{"data.@list":"array","data.@total":"number"}}},
  *       {"id":"device-detail-unauth","type":"permission","name":"operator 访问详情应被拒",
  *        "role":"operator","method":"POST","path":"/api/device/detail","body":{"id":1},
  *        "expect":{"denied":true,"noData":true}},
@@ -26,6 +26,8 @@
  *     ]
  *   }
  * expect 字段：http(期望状态码) / code(期望业务码) / shape(点路径→类型) / denied(期望被拒) / noData(期望不夹带数据)。
+ * shape 支持伪路径 `data.@list`（兼容 records/rows/list/裸数组）与 `data.@total`，
+ * 避免为不同响应格式（records vs rows vs list）写不同断言。
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -104,9 +106,39 @@ function typeOf(v) {
   return typeof v;
 }
 
+// 列表/总数多格式兼容：不同系统可能用 records / rows / list，或 data 直接是数组
+function resolveList(data) {
+  if (data == null) return undefined;
+  if (Array.isArray(data)) return data;
+  for (const k of ['records', 'rows', 'list']) {
+    if (Array.isArray(data[k])) return data[k];
+  }
+  return undefined;
+}
+function resolveTotal(data) {
+  if (data == null) return undefined;
+  if (data.total == null) return undefined;
+  const n = Number(data.total);
+  return Number.isNaN(n) ? undefined : n;
+}
+
 export function assertShape(json, shape) {
   const fails = [];
+  const data = json?.data;
   for (const [path, want] of Object.entries(shape || {})) {
+    // 伪路径：@list / @total 兼容 records/rows/list 与裸数组，避免为每个系统写不同字段名
+    if (path === '@list' || path === 'data.@list') {
+      const v = resolveList(data);
+      if (want === 'array' && !Array.isArray(v)) fails.push(`${path} 期望 array（records/rows/list），实际 ${v === undefined ? '缺失' : typeOf(v)}`);
+      else if (want === 'present' && v === undefined) fails.push(`${path} 应存在`);
+      continue;
+    }
+    if (path === '@total' || path === 'data.@total') {
+      const v = resolveTotal(data);
+      if (want === 'number' && v === undefined) fails.push(`${path} 期望 number，实际 ${v === undefined ? '缺失' : v}`);
+      else if (want === 'present' && v === undefined) fails.push(`${path} 应存在`);
+      continue;
+    }
     const v = getByPath(json, path);
     if (want === 'present') { if (v === undefined) fails.push(`${path} 应存在`); }
     else if (want === 'absent') { if (v !== undefined) fails.push(`${path} 应不存在`); }
