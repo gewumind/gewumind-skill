@@ -3,7 +3,7 @@
 > 把 GewuMind Boot 的后端能力，变成任何 AI Agent 都能用的开发技能。
 > An agent-agnostic skill that turns requirements into a running low-code backend.
 >
-> **版本 2.2.0** · 与 [gewumind-boot](https://github.com/gewumind/gewumind-boot) 同版本发布。
+> **版本 2.3.0** · 与 [gewumind-boot](https://github.com/gewumind/gewumind-boot) 同版本发布。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Cursor%20%7C%20opencode-111)](#安装)
@@ -17,6 +17,11 @@
 > Codex 能写代码，但写完还要人来接。这个 skill 把目录约定、文档门禁、发布备份、回滚和验证固化给 Agent，让交付可重复。
 
 ---
+
+## 2.3 重点：AI 客服
+
+旗舰版提供可信 AI 客服：只读工具目录 + AI 角色权限 + 数据范围 + 知识库 + 对外 H5 客服。
+标准版不包含 AI；旗舰版包含 `ai_chat` / `ai_kb` / `ai_h5`。详见 `knowledge/gewumind-boot/27-ai-customer-service.md`。
 
 ## 它能做什么
 
@@ -45,7 +50,7 @@ cd gewumind-boot
 
 # 建库并导入基线（MySQL 8）
 mysql -uroot -p -e "CREATE DATABASE \`gewumind-boot\` DEFAULT CHARACTER SET utf8mb4"
-mysql -uroot -p gewumind-boot < db/init/01-baseline.sql
+mysql -uroot -p gewumind-boot < db/releases/2.3.0/zh/full.sql
 
 export SPRING_DATASOURCE_PASSWORD='你的数据库密码'
 bash scripts/start.sh

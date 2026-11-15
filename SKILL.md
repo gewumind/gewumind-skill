@@ -5,7 +5,7 @@ description: Build complete business applications on a running GewuMind Boot (ma
 
 # GewuMind Boot Development Skill
 
-> Version 2.2.0 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
+> Version 2.3.0 (`VERSION`) — identical to the `gewumind-boot` version; both are released with the same tag.
 > Chinese reference: `SKILL.zh.md`. Deep platform knowledge: `knowledge/` (Chinese).
 
 Turn a natural-language requirement into a **publishable business application**: SQL tables + magic-api scripts + Vue dynamic components + menu/dictionary data, published with one `bundle_apply`.
@@ -79,6 +79,7 @@ Wait for user confirmation after each stage. Do not run all stages in one go.
 | Tasks | `knowledge/task/05-pitfalls.md` |
 | Component contracts | `knowledge/gewumind-boot/01-mb-table.md`, `02-mb-form.md` |
 | Release / DB baseline | `knowledge/gewumind-boot/26-delivery-and-baseline.md` |
+| **AI customer service (2.3 highlight)** | **`knowledge/gewumind-boot/27-ai-customer-service.md`** (roles, tools, KB, H5 channels, sessions, voice, troubleshooting) |
 | AI customer service (trusted-chat) | `knowledge/gewumind-boot/25-ai-service.md` (execution principle + how to configure tools/roles; 2.0 commercial feature) |
 | Knowledge base (AI knowledge source) | `knowledge/gewumind-boot/27-knowledge-base.md` (ACL-first search + citations; `POST /api/ai/kb/search` for dev flow; 2.1 commercial feature) |
 | **Testing (unit / integration / browser)** | **`references/testing.md`** (how to test each layer, pass criteria, pitfalls; integration is mandatory after publishing) |

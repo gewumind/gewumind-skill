@@ -2,7 +2,7 @@
 
 > An agent-agnostic skill that turns requirements into a running low-code backend.
 >
-> **Version 1.2.0** — released with [gewumind-boot](https://github.com/gewumind/gewumind-boot) under the same version and tag.
+> **Version 2.3.0** — released with [gewumind-boot](https://github.com/gewumind/gewumind-boot) under the same version and tag.
 
 `gewumind-skill` is not a model or an IDE. It is a set of **engineering rules + knowledge base + publish protocol** for AI agents.
 
@@ -16,6 +16,10 @@ Install it and Claude Code / Cursor / opencode can turn a business requirement i
 | Node.js | 18+ (for `sfc-compile` / `docs-verify` / `verify-publish`) |
 | AI Key | Printed in the backend startup log, or created in the admin UI |
 | Agent | Claude Code / Cursor / opencode / any MCP client |
+
+## 2.3 highlight: AI customer service
+
+The Enterprise tier includes trusted AI support: read-only tools, AI roles, data scope, knowledge base and H5 customer service. Standard excludes AI. See `knowledge/gewumind-boot/27-ai-customer-service.md`.
 
 ## Install
 

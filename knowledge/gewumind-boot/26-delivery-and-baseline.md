@@ -20,7 +20,7 @@ dist/gewumind-boot-app-<版本>/
 ├── bin/    start.sh / stop.sh / gen-ssl-cert.sh ...
 ├── config/ application.yml + application-{dev,online,docker,demo}.yml
 ├── data/zh/magic-api/   ← 接口、组件、任务脚本（备份重点）
-├── db/init/          ← 数据库基线 SQL
+├── db/releases/2.3.0/ ← 数据库基线 SQL
 └── docs/ DEPLOY.md
 dist/gewumind-boot-app-<版本>.tar.gz / .zip
 ```
@@ -42,16 +42,16 @@ done
 
 ---
 
-## 2. 数据库基线：01-baseline 只是「平台基线」
+## 2. 数据库基线：2.3.0 full.sql 只是「平台基线」
 
-`db/init/01-baseline.sql` **只有平台自身表**（sys_* / magic_* / 演示数据），
+`db/releases/2.3.0/zh/full.sql` **是 2.3.0 平台基线**（sys_* / magic_* / 演示数据），
 **不包含任何业务表**。直接把这个包发到新环境，业务接口会全部报错。
 
 正确做法：**分两层**，第二份由项目自己提供。
 
 ```
-db/init/01-baseline.sql        ← 平台基线（仓库自带，不要改）
-db/init/02-<业务>-baseline.sql  ← 业务基线（项目生成）
+db/releases/2.3.0/zh/full.sql  ← 平台基线（仓库自带，不要改）
+db/releases/2.3.0/zh/business-<业务>.sql  ← 业务基线（项目生成）
 ```
 
 ### 02 基线应包含
@@ -100,8 +100,8 @@ python3 scripts/gen-business-baseline.py     # 从运行库导出生成 02 基�
 ## 3. 交付检查清单
 
 - [ ] 打包前已停实例，`dist/` 重新生成
-- [ ] `db/init/` 下有 `01-baseline.sql` 与 `02-<项目>-baseline.sql`
+- [ ] `db/releases/2.3.0/` 下有 `full.sql` 与业务基线
 - [ ] 两份基线在**全新库**上导入无报错
 - [ ] 新库导入后业务表齐全、数据与现网有效数据一致
-- [ ] `dist/` 里包含 `data/{zh,en}/magic-api`（接口/组件/任务）与 `db/init`
+- [ ] `dist/` 里包含 `data/{zh,en}/magic-api`（接口/组件/任务）与 `db/releases/2.3.0`
 - [ ] 附件与 `upload/` 运行期目录**不**进包
