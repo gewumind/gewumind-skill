@@ -4,6 +4,8 @@
 > An agent-agnostic skill that turns requirements into a running low-code backend.
 >
 > **版本 2.3.0** · 与 [gewumind-boot](https://github.com/gewumind/gewumind-boot) 同版本发布。
+>
+> 本 skill 免费开源；GewuMind Boot 的 AI 客服等商业能力需购买 2.x 授权：[价格与授权](https://gewumind.com/pricing.zh.html)。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Agents](https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Cursor%20%7C%20opencode-111)](#安装)
