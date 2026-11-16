@@ -20,6 +20,12 @@ Turn a natural-language requirement into a **publishable business application**:
    - **MCP** (recommended): `/mcp`; tools `status_check`, `bundle_apply`, `sql_execute`, `file_receive`, `data_query`, `docs_push`.
    - **REST**: `POST /api/ai/bundle/apply` with `X-AI-Key: <keyId>:<secret>`.
 
+> **Dev access file**: after `ai.dev-access.enabled` is enabled in the config center, the backend
+> writes `data/.gewumind/ai-access.json` under its install directory with the `opencode-dev` key,
+> `mcpUrl`, `restUrl` and `key`. Read that file (or `GEWUMIND_ACCESS_FILE` if set) instead of
+> guessing a key. If it is missing, ask the user to enable the switch or provide a key. While the
+> switch is off, MCP/REST publish endpoints return 403.
+
 If the backend is unreachable, **stop** and tell the user. Do not invent artifacts.
 
 ## 2. Workspace

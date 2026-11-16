@@ -10,6 +10,9 @@
 
 ## 认证
 
+- 开发接入：配置中心打开 `ai.dev-access.enabled` 后，读取后端安装目录
+  `data/.gewumind/ai-access.json`（或 `$GEWUMIND_ACCESS_FILE`），使用其中的
+  `mcpUrl` / `restUrl` / `key`。关闭开关后接口返回 403。
 - REST：`X-AI-Key: <keyId>:<secret>` 请求头（keyId:secret 都取自后端配置的 AI Key；演示环境常见 `poctrusted:poctrusted`）
 - MCP：**版本不一致**——老版本 `/mcp` 无鉴权；新构建（1.0.0 实测）会返回 **401**，需要同样带 `X-AI-Key` 头（或改用 REST）。接入前先 `curl -i {base}/mcp` 探测：401 就补 Key；无鉴权时也要注意 `sql_execute`（裸 SQL）的风险，公网部署前必须给 `/mcp/**` 加鉴权
 

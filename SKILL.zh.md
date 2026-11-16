@@ -20,6 +20,11 @@ description: 面向运行中的 GewuMind Boot（magic-api 低代码后端）开�
    - **MCP Server**（推荐）：后端自带 `/mcp` MCP 端点，配置方法见 `references/publish-protocol.md` §MCP。工具：`status_check` / `bundle_apply` / `sql_execute` / `file_receive` / `data_query` / `docs_push`
    - **REST**：`POST /api/ai/bundle/apply` + `X-AI-Key: <keyId>:<secret>` 头
 
+> **开发接入文件**：配置中心打开 `ai.dev-access.enabled` 后，后端会在安装目录
+> `data/.gewumind/ai-access.json` 生成 `opencode-dev` Key 和 `mcpUrl` / `restUrl` / `key`。
+> 先读这个文件（或环境变量 `GEWUMIND_ACCESS_FILE` 指向的文件），不要猜 Key；找不到就请用户
+> 打开开关或手工提供 Key。开关关闭时 MCP/REST 发布接口返回 403。
+
 如果连不上后端，**先停下**告诉用户，不要凭空生成产物。
 
 ## 项目工作区布局

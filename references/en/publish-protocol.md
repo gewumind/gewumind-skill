@@ -10,6 +10,9 @@ All backend changes go through **bundle apply**: SQL list + magic-script list, e
 
 ## Authentication
 
+- Dev access: enable `ai.dev-access.enabled` in the config center, then read
+  `data/.gewumind/ai-access.json` under the backend install directory (or `$GEWUMIND_ACCESS_FILE`)
+  for `mcpUrl` / `restUrl` / `key`. The endpoints return 403 while the switch is off.
 - REST: `X-AI-Key: <keyId>:<secret>`.
 - MCP: older builds `/mcp` are open; newer builds return 401 and need the same `X-AI-Key` header.
 
